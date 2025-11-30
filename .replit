@@ -37,9 +37,13 @@ args = "StoicAlgo Pipeline"
 name = "StoicAlgo Pipeline"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python main.py"
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python scheduler.py"
+
+[[ports]]
+localPort = 8080
+externalPort = 80
