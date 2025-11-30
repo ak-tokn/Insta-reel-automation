@@ -457,29 +457,82 @@ class VideoBuilder:
     def _prepare_animated_background(self, animated_path: Path) -> Path:
         """Prepare the animated background video for use in the final video.
         
-        Ensures the video matches the target duration, resolution, and format.
+        Ensures the video matches the target duration, resolution (1080x1920), and format.
+        Handles looping if source is shorter than required duration.
         """
         output_path = Path(tempfile.gettempdir()) / "stoic_animated_bg.mp4"
         
-        cmd = [
-            'ffmpeg', '-y',
-            '-i', str(animated_path),
-            '-vf', f"scale={self.width}:{self.height}:force_original_aspect_ratio=decrease,pad={self.width}:{self.height}:(ow-iw)/2:(oh-ih)/2",
-            '-t', str(self.duration),
-            '-c:v', 'libx264',
-            '-pix_fmt', 'yuv420p',
-            '-preset', 'medium',
-            '-crf', '23',
-            '-an',
-            str(output_path)
+        # First, get source video info
+        probe_cmd = [
+            'ffprobe', '-v', 'error',
+            '-select_streams', 'v:0',
+            '-show_entries', 'stream=width,height,duration,r_frame_rate',
+            '-of', 'json',
+            str(animated_path)
         ]
         
+        probe_result = subprocess.run(probe_cmd, capture_output=True, text=True)
+        source_duration = self.duration  # Default to target if can't probe
+        
+        if probe_result.returncode == 0:
+            import json
+            try:
+                probe_data = json.loads(probe_result.stdout)
+                streams = probe_data.get('streams', [{}])
+                if streams:
+                    source_duration = float(streams[0].get('duration', self.duration))
+                    logger.info(f"Source video duration: {source_duration}s, target: {self.duration}s")
+            except (json.JSONDecodeError, ValueError, KeyError):
+                pass
+        
+        # Build filter for scaling and cropping to exact 1080x1920
+        # Using crop after scale to handle aspect ratio properly
+        scale_filter = (
+            f"scale={self.width}:{self.height}:force_original_aspect_ratio=increase,"
+            f"crop={self.width}:{self.height},"
+            f"setsar=1"
+        )
+        
+        # If source is shorter than needed, loop it
+        if source_duration < self.duration:
+            loop_count = int(self.duration / source_duration) + 1
+            cmd = [
+                'ffmpeg', '-y',
+                '-stream_loop', str(loop_count),
+                '-i', str(animated_path),
+                '-vf', scale_filter,
+                '-t', str(self.duration),
+                '-r', str(self.fps),
+                '-c:v', 'libx264',
+                '-pix_fmt', 'yuv420p',
+                '-preset', 'medium',
+                '-crf', '23',
+                '-an',
+                str(output_path)
+            ]
+        else:
+            cmd = [
+                'ffmpeg', '-y',
+                '-i', str(animated_path),
+                '-vf', scale_filter,
+                '-t', str(self.duration),
+                '-r', str(self.fps),
+                '-c:v', 'libx264',
+                '-pix_fmt', 'yuv420p',
+                '-preset', 'medium',
+                '-crf', '23',
+                '-an',
+                str(output_path)
+            ]
+        
+        logger.debug(f"FFmpeg command: {' '.join(cmd)}")
         result = subprocess.run(cmd, capture_output=True, text=True)
         
         if result.returncode != 0:
             logger.error(f"Animated background preparation failed: {result.stderr}")
             raise RuntimeError(f"Animated background preparation failed: {result.stderr}")
         
+        logger.info(f"Animated background prepared: {output_path}")
         return output_path
     
     def _apply_ken_burns(self, image_path: Path) -> Path:

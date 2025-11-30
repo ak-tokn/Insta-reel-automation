@@ -108,13 +108,13 @@ class Orchestrator:
                 "duration": t.elapsed
             })
             
-            # Step 5.5: Check for animated background
-            post_count = increment_post_count()
-            use_animated = self.animated_bg.should_generate_animated(post_count)
+            # Step 5.5: Check for animated background (check count without incrementing)
+            current_post_count = get_post_count() + 1  # Preview what the next count would be
+            use_animated = self.animated_bg.should_generate_animated(current_post_count)
             animated_video_path = None
             
             if use_animated:
-                logger.info(f"Post #{post_count}: Generating animated background...")
+                logger.info(f"Post #{current_post_count}: Generating animated background...")
                 with Timer("Animated Background") as t:
                     animated_video_path = self._generate_animated_background(prepared_image, content)
                 
@@ -176,7 +176,9 @@ class Orchestrator:
             # Mark the original image as used (move to 'used' folder)
             self.image_selector.mark_as_used(original_image_path)
             
-            logger.info(f"Pipeline completed successfully: {self.run_id}")
+            # Increment post count only after successful completion
+            final_count = increment_post_count()
+            logger.info(f"Pipeline completed successfully: {self.run_id} (Post #{final_count})")
             
             # Log the complete run
             run_logger = StoicLogger()
