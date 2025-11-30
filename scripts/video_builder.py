@@ -4,6 +4,7 @@ Generates vertical videos with Ken Burns effect and text overlays using FFmpeg.
 """
 
 import os
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -117,7 +118,7 @@ class VideoBuilder:
                 final_video = video_with_motivation
             
             # Move to final output
-            os.rename(final_video, video_output)
+            shutil.move(final_video, video_output)
             
             # Generate thumbnail from middle frame of final video
             self._generate_thumbnail(video_output, thumbnail_output)
