@@ -230,20 +230,6 @@ class VideoBuilder:
         for display_line, text_x, y_pos in quote_positions:
             text_draw.text((text_x, y_pos), display_line, font=quote_font, fill=(255, 255, 255, 255))
         
-        # Add watermark at bottom
-        watermark_text = "real applications in caption"
-        watermark_size = 24
-        try:
-            watermark_font = ImageFont.truetype(str(quote_font_path), watermark_size)
-        except:
-            watermark_font = ImageFont.load_default()
-        
-        watermark_bbox = text_draw.textbbox((0, 0), watermark_text, font=watermark_font)
-        watermark_width = watermark_bbox[2] - watermark_bbox[0]
-        watermark_x = (self.width - watermark_width) // 2
-        watermark_y = int(self.height * 0.95)
-        text_draw.text((watermark_x, watermark_y), watermark_text, font=watermark_font, fill=(255, 255, 255, 180))
-        
         # Save overlay
         overlay_path = Path(tempfile.gettempdir()) / "stoic_overlay.png"
         overlay.save(overlay_path, 'PNG')
@@ -408,8 +394,24 @@ class VideoBuilder:
         # Draw RED text
         text_draw = ImageDraw.Draw(overlay)
         red_color = (220, 40, 40, 255)
+        last_y_pos = motivation_y
         for line, text_x, y_pos in motivation_positions:
             text_draw.text((text_x, y_pos), line, font=motivation_font, fill=red_color)
+            last_y_pos = y_pos
+        
+        # Add watermark directly below motivation text
+        watermark_text = "real applications in caption"
+        watermark_size = 24
+        try:
+            watermark_font = ImageFont.truetype(font_path, watermark_size)
+        except:
+            watermark_font = ImageFont.load_default()
+        
+        watermark_bbox = text_draw.textbbox((0, 0), watermark_text, font=watermark_font)
+        watermark_width = watermark_bbox[2] - watermark_bbox[0]
+        watermark_x = (self.width - watermark_width) // 2
+        watermark_y = last_y_pos + line_height + 20
+        text_draw.text((watermark_x, watermark_y), watermark_text, font=watermark_font, fill=(255, 255, 255, 180))
         
         overlay_path = Path(tempfile.gettempdir()) / "stoic_motivation.png"
         overlay.save(overlay_path, 'PNG')
