@@ -21,6 +21,7 @@ from scripts.video_builder import VideoBuilder
 from scripts.instagram_client import InstagramClient
 from scripts.animated_background import AnimatedBackgroundGenerator, get_post_count, increment_post_count
 from scripts.reference_person_video import ReferencePersonVideoGenerator
+from scripts.flash_reel_builder import FlashReelBuilder
 
 logger = get_logger("Orchestrator")
 
@@ -41,6 +42,7 @@ class Orchestrator:
         self.instagram_client = InstagramClient()
         self.animated_bg = AnimatedBackgroundGenerator()
         self.reference_person = ReferencePersonVideoGenerator()
+        self.flash_reel_builder = FlashReelBuilder()
         
         # Run tracking
         self.run_data = {
@@ -84,8 +86,14 @@ class Orchestrator:
             
             # Check if this will be a special post (check count without incrementing)
             current_post_count = get_post_count() + 1
-            use_reference_person = self.reference_person.should_use_reference_person(current_post_count)
-            use_animated = not use_reference_person and self.animated_bg.should_generate_animated(current_post_count)
+            use_flash_reel = self._should_use_flash_reel(current_post_count)
+            use_reference_person = not use_flash_reel and self.reference_person.should_use_reference_person(current_post_count)
+            use_animated = not use_flash_reel and not use_reference_person and self.animated_bg.should_generate_animated(current_post_count)
+            
+            # Handle Flash Reel format separately (different pipeline)
+            if use_flash_reel:
+                logger.info(f"Post #{current_post_count}: Using FLASH REEL format")
+                return self._run_flash_reel_pipeline(content, caption, current_post_count, post_to_instagram)
             
             # Step 3: Select Image
             with Timer("Image Selection") as t:
@@ -260,6 +268,128 @@ class Orchestrator:
         preferred = self.settings.get('reference_person', {}).get('preferred_backgrounds', ['temples', 'nature'])
         category = preferred[0] if preferred else 'temples'
         return self.image_selector.select_image(mood=content.get('mood'), category=category)
+    
+    def _should_use_flash_reel(self, post_count: int) -> bool:
+        """Determine if this post should use flash reel format."""
+        flash_settings = self.settings.get('flash_reel', {})
+        if not flash_settings.get('enabled', False):
+            return False
+        
+        reel_type_settings = self.settings.get('reel_type', {})
+        frequency = reel_type_settings.get('frequency_flash', 0)
+        
+        if frequency <= 0:
+            return False
+        
+        return post_count % frequency == 0
+    
+    def _select_flash_images(self, content: Dict, count: int = 15) -> list:
+        """Select multiple images from a category for flash reel."""
+        logger.info(f"Selecting {count} images for flash reel...")
+        mood = content.get('mood', 'contemplative')
+        
+        categories = self.settings['image']['categories']
+        import random
+        category = random.choice(categories)
+        
+        return self.flash_reel_builder.select_category_images(category, count)
+    
+    def _get_flash_background_audio(self) -> Optional[Path]:
+        """Get the background audio track for flash reels."""
+        flash_settings = self.settings.get('flash_reel', {})
+        bg_audio = flash_settings.get('background_audio', {})
+        track_name = bg_audio.get('track', 'dramatic_tension.mp3')
+        
+        audio_dir = Path(self.settings['paths']['audio']) / 'flash_tracks'
+        track_path = audio_dir / track_name
+        
+        if track_path.exists():
+            return track_path
+        
+        original_tracks = Path(self.settings['paths']['audio']) / 'original_tracks'
+        for audio_file in original_tracks.glob('*.mp3'):
+            return audio_file
+        
+        return None
+    
+    def _run_flash_reel_pipeline(
+        self,
+        content: Dict,
+        caption: str,
+        post_count: int,
+        post_to_instagram: bool
+    ) -> Dict:
+        """Run the flash reel pipeline (separate from standard pipeline)."""
+        
+        try:
+            with Timer("Flash Image Selection") as t:
+                flash_images = self._select_flash_images(content)
+            self._log_step("flash_image_selection", "success", {
+                "count": len(flash_images),
+                "duration": t.elapsed
+            })
+            
+            background_audio = self._get_flash_background_audio()
+            
+            with Timer("Flash Reel Building") as t:
+                video_path, thumbnail_path = self.flash_reel_builder.build_flash_reel(
+                    images=flash_images,
+                    content=content,
+                    background_audio_path=background_audio
+                )
+            self._log_step("flash_reel_building", "success", {
+                "video": video_path.name,
+                "thumbnail": thumbnail_path.name,
+                "duration": t.elapsed
+            })
+            
+            post_result = None
+            if post_to_instagram:
+                with Timer("Instagram Posting") as t:
+                    post_result = self._post_to_instagram(
+                        video_path,
+                        caption,
+                        {},
+                        thumbnail_path
+                    )
+                self._log_step("instagram_posting", "success", {
+                    "post_id": post_result.get('post_id') if post_result else None,
+                    "duration": t.elapsed
+                })
+            else:
+                self._log_step("instagram_posting", "skipped", {
+                    "reason": "post_to_instagram=False"
+                })
+            
+            self.run_data['status'] = 'completed'
+            self.run_data['end_time'] = datetime.now().isoformat()
+            self.run_data['output'] = {
+                'video_path': str(video_path),
+                'thumbnail_path': str(thumbnail_path),
+                'caption': caption[:200] + '...' if len(caption) > 200 else caption,
+                'post_result': post_result,
+                'reel_type': 'flash_reel'
+            }
+            
+            final_count = increment_post_count()
+            logger.info(f"Flash reel completed: {self.run_id} (Post #{final_count})")
+            
+            run_logger = StoicLogger()
+            run_logger.log_run(self.run_data)
+            
+            return self.run_data
+            
+        except Exception as e:
+            self.run_data['status'] = 'failed'
+            self.run_data['error'] = str(e)
+            self.run_data['end_time'] = datetime.now().isoformat()
+            
+            logger.error(f"Flash reel pipeline failed: {str(e)}")
+            
+            run_logger = StoicLogger()
+            run_logger.log_run(self.run_data)
+            
+            raise
     
     def _prepare_image(self, image_path: Path) -> Path:
         """Prepare image for video (resize/crop)."""
