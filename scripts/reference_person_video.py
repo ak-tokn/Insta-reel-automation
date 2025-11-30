@@ -4,10 +4,11 @@ Uses fal.ai Vidu Reference-to-Video API to generate videos with a specific perso
 """
 
 import os
-import time
+import asyncio
 import requests
 from pathlib import Path
 from typing import Optional, List
+import fal_client
 from scripts.logger import get_logger
 from scripts.utils import load_settings, get_timestamp_filename
 
@@ -20,8 +21,10 @@ class ReferencePersonVideoGenerator:
     def __init__(self):
         self.settings = load_settings()
         self.api_key = os.environ.get('FAL_API_KEY')
-        self.base_url = "https://queue.fal.run"
         self.model = "fal-ai/vidu/reference-to-video"
+        
+        if self.api_key:
+            os.environ['FAL_KEY'] = self.api_key
         
         project_root = Path(__file__).parent.parent
         self.reference_dir = project_root / "assets" / "reference_person"
@@ -76,7 +79,7 @@ class ReferencePersonVideoGenerator:
                 )
                 
                 if response.status_code == 200 and response.text.startswith('http'):
-                    return response.text
+                    return response.text.strip()
                 else:
                     logger.error(f"Image upload failed: {response.text}")
                     return None
@@ -94,7 +97,7 @@ class ReferencePersonVideoGenerator:
         Generate a video featuring the reference person.
         
         Args:
-            background_image: Optional background/environment image
+            background_image: Optional background/environment image (not used in reference-to-video)
             prompt: Motion/action prompt for the person
             output_name: Optional output filename
             
@@ -129,94 +132,49 @@ class ReferencePersonVideoGenerator:
                 "Person walking slowly and contemplatively, serene expression, cinematic lighting, atmospheric, slow motion"
             )
         
-        headers = {
-            "Authorization": f"Key {self.api_key}",
-            "Content-Type": "application/json"
-        }
-        
-        input_data = {
-            "prompt": prompt,
-            "reference_image_urls": reference_urls
-        }
-        
-        payload = {"input": input_data}
-        
         try:
-            submit_response = requests.post(
-                f"{self.base_url}/{self.model}",
-                headers=headers,
-                json=payload,
-                timeout=30
+            logger.info(f"Submitting to {self.model} with {len(reference_urls)} reference images")
+            logger.info(f"Prompt: {prompt}")
+            
+            def on_queue_update(update):
+                if isinstance(update, fal_client.Queued):
+                    logger.info(f"Queued. Position: {update.position}")
+                elif isinstance(update, fal_client.InProgress):
+                    logger.info("In progress...")
+                    if hasattr(update, 'logs') and update.logs:
+                        for log in update.logs[-3:]:
+                            if isinstance(log, dict):
+                                logger.info(f"API: {log.get('message', '')}")
+                            else:
+                                logger.info(f"API: {log}")
+            
+            result = fal_client.subscribe(
+                self.model,
+                arguments={
+                    "prompt": prompt,
+                    "reference_image_urls": reference_urls,
+                    "aspect_ratio": "9:16",
+                    "movement_amplitude": "small"
+                },
+                with_logs=True,
+                on_queue_update=on_queue_update
             )
             
-            if submit_response.status_code not in [200, 202]:
-                logger.error(f"Failed to submit request: {submit_response.text}")
-                return None
+            logger.info(f"Result received: {type(result)}")
             
-            result = submit_response.json()
-            request_id = result.get('request_id')
-            status_url = result.get('status_url')
-            response_url = result.get('response_url')
+            if result and 'video' in result:
+                video_url = result['video'].get('url')
+                if video_url:
+                    logger.info(f"Video URL: {video_url}")
+                    return self._download_video(video_url, output_name)
             
-            if not request_id:
-                logger.error(f"No request_id in response: {result}")
-                return None
-            
-            logger.info(f"Request submitted, ID: {request_id}")
-            
-            if not status_url:
-                status_url = f"{self.base_url}/{self.model}/requests/{request_id}/status"
-            if not response_url:
-                response_url = f"{self.base_url}/{self.model}/requests/{request_id}"
-            
-            max_wait = 600
-            start_time = time.time()
-            
-            while time.time() - start_time < max_wait:
-                status_response = requests.get(status_url, headers=headers, timeout=30)
-                
-                if status_response.status_code in [200, 202]:
-                    status_data = status_response.json()
-                    status = status_data.get('status')
-                    
-                    logger.info(f"Generation status: {status}")
-                    
-                    if status == 'COMPLETED':
-                        if 'response' in status_data:
-                            video_url = status_data.get('response', {}).get('video', {}).get('url')
-                            if video_url:
-                                return self._download_video(video_url, output_name)
-                        
-                        result_response = requests.get(response_url, headers=headers, timeout=30)
-                        
-                        if result_response.status_code == 200:
-                            result_data = result_response.json()
-                            video_url = result_data.get('video', {}).get('url')
-                            
-                            if video_url:
-                                return self._download_video(video_url, output_name)
-                        
-                        logger.error(f"Failed to get result: {result_response.text}")
-                        return None
-                    
-                    elif status == 'FAILED':
-                        error_msg = status_data.get('error', 'Unknown error')
-                        logger.error(f"Generation failed: {error_msg}")
-                        return None
-                    
-                    elif status in ['IN_QUEUE', 'IN_PROGRESS']:
-                        time.sleep(10)
-                    else:
-                        time.sleep(5)
-                else:
-                    logger.warning(f"Status check failed: {status_response.status_code}")
-                    time.sleep(10)
-            
-            logger.error("Generation timed out")
+            logger.error(f"No video in result: {result}")
             return None
             
         except Exception as e:
             logger.error(f"Reference person video generation failed: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
             return None
     
     def _download_video(self, video_url: str, output_name: str = None) -> Optional[Path]:
