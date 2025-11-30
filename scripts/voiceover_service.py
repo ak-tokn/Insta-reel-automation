@@ -27,6 +27,8 @@ class WordTiming:
     start_ms: int
     end_ms: int
     is_dramatic_pause: bool = False
+    is_ending_phrase: bool = False
+    is_intro: bool = False
 
 
 @dataclass
@@ -54,6 +56,7 @@ class VoiceoverService:
         self,
         quote_text: str,
         motivation_text: str,
+        author: str = "",
         ending_phrase: str = None
     ) -> Optional[VoiceoverResult]:
         """
@@ -62,6 +65,7 @@ class VoiceoverService:
         Args:
             quote_text: The main quote to read
             motivation_text: The motivational follow-up text
+            author: The author name for intro
             ending_phrase: Optional ending phrase (defaults to config)
             
         Returns:
@@ -79,6 +83,31 @@ class VoiceoverService:
             audio_segments = []
             word_timings = []
             current_time_ms = 0
+            
+            if author:
+                intro_text = f"As {author} once said..."
+                intro_audio, intro_timings, intro_duration = self._generate_segment(
+                    intro_text,
+                    is_sinister=False,
+                    is_intro=True
+                )
+                if intro_audio:
+                    audio_segments.append(intro_audio)
+                    for timing in intro_timings:
+                        timing.start_ms += current_time_ms
+                        timing.end_ms += current_time_ms
+                        timing.is_intro = True
+                        word_timings.append(timing)
+                    current_time_ms += intro_duration
+                    
+                    intro_pause_ms = 400
+                    word_timings.append(WordTiming(
+                        text="",
+                        start_ms=current_time_ms,
+                        end_ms=current_time_ms + intro_pause_ms,
+                        is_dramatic_pause=True
+                    ))
+                    current_time_ms += intro_pause_ms
             
             quote_audio, quote_timings, quote_duration = self._generate_segment(
                 quote_text,
@@ -117,6 +146,15 @@ class VoiceoverService:
                     word_timings.append(timing)
                 current_time_ms += motivation_duration
             
+            ending_pause_ms = 300
+            word_timings.append(WordTiming(
+                text="",
+                start_ms=current_time_ms,
+                end_ms=current_time_ms + ending_pause_ms,
+                is_dramatic_pause=True
+            ))
+            current_time_ms += ending_pause_ms
+            
             ending_audio, ending_timings, ending_duration = self._generate_segment(
                 ending_phrase,
                 is_sinister=True,
@@ -127,6 +165,7 @@ class VoiceoverService:
                 for timing in ending_timings:
                     timing.start_ms += current_time_ms
                     timing.end_ms += current_time_ms
+                    timing.is_ending_phrase = True
                     word_timings.append(timing)
                 current_time_ms += ending_duration
             
@@ -156,31 +195,40 @@ class VoiceoverService:
         self,
         text: str,
         is_sinister: bool = False,
-        speed_factor: float = 1.0
+        speed_factor: float = 1.0,
+        is_intro: bool = False
     ) -> Tuple[Optional[Path], List[WordTiming], int]:
         """
-        Generate a single audio segment.
+        Generate a single audio segment using deep masculine voice.
+        Uses ChatterboxHD with pre-built "Cliff" voice for deep masculine sound.
         
         Returns:
             Tuple of (audio_path, word_timings, duration_ms)
         """
         try:
             if is_sinister:
-                exaggeration = self.voice_settings.get('sinister_exaggeration', 1.2)
-                cfg = self.voice_settings.get('sinister_cfg', 0.2)
+                exaggeration = self.voice_settings.get('sinister_exaggeration', 0.7)
+                cfg = self.voice_settings.get('sinister_cfg', 0.35)
+            elif is_intro:
+                exaggeration = self.voice_settings.get('intro_exaggeration', 0.4)
+                cfg = self.voice_settings.get('intro_cfg', 0.45)
             else:
-                exaggeration = self.voice_settings.get('exaggeration', 0.7)
-                cfg = self.voice_settings.get('cfg', 0.3)
+                exaggeration = self.voice_settings.get('exaggeration', 0.5)
+                cfg = self.voice_settings.get('cfg', 0.4)
             
-            logger.info(f"Generating TTS: '{text[:50]}...' (sinister={is_sinister})")
+            voice_name = self.voice_settings.get('voice', 'Cliff')
+            
+            logger.info(f"Generating TTS: '{text[:50]}...' (voice={voice_name}, sinister={is_sinister}, intro={is_intro})")
             
             result = fal_client.subscribe(
                 'resemble-ai/chatterboxhd/text-to-speech',
                 arguments={
                     'text': text,
+                    'voice': voice_name,
                     'exaggeration': exaggeration,
                     'cfg': cfg,
-                    'upscale': True
+                    'temperature': 0.75,
+                    'high_quality_audio': True
                 }
             )
             
@@ -333,6 +381,7 @@ class VoiceoverService:
     ) -> List[WordTiming]:
         """
         Group word timings for display (showing 1-2 words at a time).
+        Preserves is_ending_phrase and is_intro flags.
         """
         grouped = []
         current_group = []
@@ -340,10 +389,14 @@ class VoiceoverService:
         for timing in word_timings:
             if timing.is_dramatic_pause:
                 if current_group:
+                    is_ending = any(t.is_ending_phrase for t in current_group)
+                    is_intro = any(t.is_intro for t in current_group)
                     grouped.append(WordTiming(
                         text=' '.join(t.text for t in current_group),
                         start_ms=current_group[0].start_ms,
-                        end_ms=current_group[-1].end_ms
+                        end_ms=current_group[-1].end_ms,
+                        is_ending_phrase=is_ending,
+                        is_intro=is_intro
                     ))
                     current_group = []
                 grouped.append(timing)
@@ -352,18 +405,26 @@ class VoiceoverService:
             current_group.append(timing)
             
             if len(current_group) >= words_per_group:
+                is_ending = any(t.is_ending_phrase for t in current_group)
+                is_intro = any(t.is_intro for t in current_group)
                 grouped.append(WordTiming(
                     text=' '.join(t.text for t in current_group),
                     start_ms=current_group[0].start_ms,
-                    end_ms=current_group[-1].end_ms
+                    end_ms=current_group[-1].end_ms,
+                    is_ending_phrase=is_ending,
+                    is_intro=is_intro
                 ))
                 current_group = []
         
         if current_group:
+            is_ending = any(t.is_ending_phrase for t in current_group)
+            is_intro = any(t.is_intro for t in current_group)
             grouped.append(WordTiming(
                 text=' '.join(t.text for t in current_group),
                 start_ms=current_group[0].start_ms,
-                end_ms=current_group[-1].end_ms
+                end_ms=current_group[-1].end_ms,
+                is_ending_phrase=is_ending,
+                is_intro=is_intro
             ))
         
         return grouped

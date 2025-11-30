@@ -60,25 +60,28 @@ Note: Vidu reference-to-video produces ~5-second clips (fixed by API). For 10-se
 ```json
 "flash_reel": {
   "enabled": false,              // Toggle on/off (off by default)
-  "image_flash_duration_ms": 300, // How long each image shows
-  "images_per_reel": 15,         // Number of images per reel
+  "image_flash_duration_ms": 300, // How long each image shows (independent of words)
+  "images_per_reel": 20,         // Number of images per reel
   "words_per_flash": 2,          // Words shown at a time
   "dramatic_pause_ms": 800,      // Pause between quote and motivation
   "ending_phrase": "read the caption for real world applications",
   "voice": {
     "model": "resemble-ai/chatterboxhd/text-to-speech",
-    "exaggeration": 0.7,         // Normal dramatic level
-    "sinister_exaggeration": 1.2 // More intense for motivation
+    "voice": "Cliff",            // Deep masculine voice (options: Cliff, Blade, Carl, Richard)
+    "exaggeration": 0.5,         // Normal dramatic level
+    "sinister_exaggeration": 0.7 // More intense for motivation
   }
 }
 ```
 The flash reel format features:
-- Rapid image flashing from a single category
-- Masculine, stoic voiceover reading the quote
+- "As [author name] once said..." intro before the quote
+- Deep masculine voiceover (Cliff voice via ChatterboxHD)
+- Rapid image flashing at fixed intervals (independent of word timing)
 - Words appearing 1-2 at a time synchronized with speech
 - Dramatic pause before motivation section
 - Darker/sinister tone for the motivational part
-- Ends with call-to-action for caption
+- Ending phrase is voice-only (not displayed on screen)
+- Images are NOT moved to 'used' folder for flash reels
 
 ### Required Secrets
 - `FAL_API_KEY` - fal.ai API key for Kling and Vidu video generation

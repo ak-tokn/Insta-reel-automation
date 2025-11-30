@@ -88,7 +88,8 @@ class FlashReelBuilder:
         try:
             voiceover_result = self.voiceover_service.generate_voiceover(
                 quote_text=quote,
-                motivation_text=motivation
+                motivation_text=motivation,
+                author=author
             )
             
             if not voiceover_result:
@@ -96,12 +97,17 @@ class FlashReelBuilder:
             
             logger.info(f"Voiceover duration: {voiceover_result.total_duration_ms}ms")
             
+            display_timings = [
+                t for t in voiceover_result.word_timings
+                if not t.is_ending_phrase and not t.is_intro
+            ]
+            
             grouped_timings = self.voiceover_service.group_words_for_display(
-                voiceover_result.word_timings,
+                display_timings,
                 self.words_per_flash
             )
             
-            segments = self._create_segments(
+            segments = self._create_segments_independent(
                 images,
                 grouped_timings,
                 voiceover_result.total_duration_ms
@@ -109,7 +115,12 @@ class FlashReelBuilder:
             
             base_video = self._create_flash_video(segments, voiceover_result)
             
-            video_with_text = self._add_word_reveals(base_video, segments, author)
+            video_with_text = self._add_word_reveals(
+                base_video, 
+                grouped_timings,
+                author,
+                voiceover_result.total_duration_ms
+            )
             
             video_with_effects = self._add_visual_effects(video_with_text)
             
@@ -132,33 +143,58 @@ class FlashReelBuilder:
             traceback.print_exc()
             raise
     
-    def _create_segments(
+    def _create_segments_independent(
         self,
         images: List[Path],
         word_timings: List[WordTiming],
         total_duration_ms: int
     ) -> List[FlashSegment]:
-        """Create flash segments mapping images to word timings."""
+        """
+        Create flash segments with images cycling independently of words.
+        Images flash at fixed intervals while words overlay based on speech timing.
+        """
+        image_interval_ms = self.flash_duration_ms
+        
+        num_image_changes = max(1, total_duration_ms // image_interval_ms)
+        
         segments = []
+        current_ms = 0
         image_index = 0
         
-        for timing in word_timings:
-            if timing.is_dramatic_pause:
-                segments.append(FlashSegment(
-                    image_path=images[image_index % len(images)],
-                    start_ms=timing.start_ms,
-                    end_ms=timing.end_ms,
-                    words="",
-                    is_dramatic_pause=True
-                ))
-            else:
-                segments.append(FlashSegment(
-                    image_path=images[image_index % len(images)],
-                    start_ms=timing.start_ms,
-                    end_ms=timing.end_ms,
-                    words=timing.text
-                ))
-                image_index += 1
+        for i in range(num_image_changes):
+            start_ms = current_ms
+            end_ms = min(current_ms + image_interval_ms, total_duration_ms)
+            
+            words_in_segment = ""
+            is_pause = False
+            for timing in word_timings:
+                if timing.is_dramatic_pause:
+                    if timing.start_ms <= start_ms < timing.end_ms:
+                        is_pause = True
+                elif timing.start_ms <= start_ms < timing.end_ms or (timing.start_ms >= start_ms and timing.end_ms <= end_ms):
+                    if words_in_segment:
+                        words_in_segment += " "
+                    words_in_segment += timing.text
+            
+            segments.append(FlashSegment(
+                image_path=images[image_index % len(images)],
+                start_ms=start_ms,
+                end_ms=end_ms,
+                words=words_in_segment,
+                is_dramatic_pause=is_pause
+            ))
+            
+            image_index += 1
+            current_ms = end_ms
+        
+        if current_ms < total_duration_ms:
+            segments.append(FlashSegment(
+                image_path=images[image_index % len(images)],
+                start_ms=current_ms,
+                end_ms=total_duration_ms,
+                words="",
+                is_dramatic_pause=False
+            ))
         
         return segments
     
@@ -267,8 +303,9 @@ class FlashReelBuilder:
     def _add_word_reveals(
         self,
         video_path: Path,
-        segments: List[FlashSegment],
-        author: str
+        word_timings: List[WordTiming],
+        author: str,
+        total_duration_ms: int
     ) -> Path:
         """Add synchronized word reveals to the video."""
         output_path = Path(tempfile.gettempdir()) / "flash_with_text.mp4"
@@ -283,26 +320,14 @@ class FlashReelBuilder:
         
         font_size = int(72 * size_multiplier)
         
-        author_text = f"— {author}"
-        author_filter = (
-            f"drawtext=text='{self._escape_ffmpeg_text(author_text)}':"
-            f"fontfile='{font_path}':"
-            f"fontsize=36:"
-            f"fontcolor=white:"
-            f"x=(w-text_w)/2:"
-            f"y=h*0.15:"
-            f"shadowcolor=black:shadowx=2:shadowy=2"
-        )
-        drawtext_filters.append(author_filter)
-        
-        for i, segment in enumerate(segments):
-            if segment.is_dramatic_pause or not segment.words:
+        for timing in word_timings:
+            if timing.is_dramatic_pause or not timing.text:
                 continue
             
-            start_sec = segment.start_ms / 1000.0
-            end_sec = segment.end_ms / 1000.0
+            start_sec = timing.start_ms / 1000.0
+            end_sec = timing.end_ms / 1000.0
             
-            escaped_text = self._escape_ffmpeg_text(segment.words.upper())
+            escaped_text = self._escape_ffmpeg_text(timing.text.upper())
             
             word_filter = (
                 f"drawtext=text='{escaped_text}':"
@@ -316,6 +341,9 @@ class FlashReelBuilder:
                 f"enable='between(t,{start_sec},{end_sec})'"
             )
             drawtext_filters.append(word_filter)
+        
+        if not drawtext_filters:
+            return video_path
         
         filter_chain = ','.join(drawtext_filters)
         

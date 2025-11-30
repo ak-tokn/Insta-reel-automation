@@ -246,7 +246,7 @@
   "flash_reel": {
     "enabled": false,
     "image_flash_duration_ms": 300,
-    "images_per_reel": 15,
+    "images_per_reel": 20,
     "word_reveal_speed": "dramatic",
     "words_per_flash": 2,
     "dramatic_pause_ms": 800,
@@ -254,13 +254,16 @@
     "voice": {
       "provider": "fal-ai",
       "model": "resemble-ai/chatterboxhd/text-to-speech",
-      "exaggeration": 0.7,
-      "cfg": 0.3,
-      "sinister_exaggeration": 1.2,
-      "sinister_cfg": 0.2
+      "voice": "Cliff",
+      "exaggeration": 0.5,
+      "cfg": 0.4,
+      "intro_exaggeration": 0.4,
+      "intro_cfg": 0.45,
+      "sinister_exaggeration": 0.7,
+      "sinister_cfg": 0.35
     },
     "background_audio": {
-      "volume": 0.25,
+      "volume": 0.2,
       "track": "dramatic_tension.mp3"
     },
     "text_style": {
