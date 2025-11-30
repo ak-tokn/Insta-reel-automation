@@ -229,10 +229,10 @@
   },
   
   "reference_person": {
-    "enabled": true,
+    "enabled": false,
     "frequency": 10,
-    "duration": 4,
-    "default_prompt": "Woman walking slowly and contemplatively through the scene, serene confident expression, flowing hair, cinematic lighting, atmospheric, elegant movement, medium shot",
+    "duration": 8,
+    "default_prompt": "Woman actively walking through the environment, full body visible, natural walking motion with arms swinging, confident stride, photorealistic, 4K quality, natural lighting, cinematic depth of field",
     "preferred_backgrounds": ["temples", "nature", "warriors"],
     "model": "fal-ai/vidu/reference-to-video"
   }

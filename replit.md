@@ -43,9 +43,9 @@ StoicAlgo is an automated content creation and posting system for Instagram Reel
 ### Reference Person Settings
 ```json
 "reference_person": {
-  "enabled": true,
+  "enabled": false,       // Toggle on/off (off by default)
   "frequency": 10,        // Every 10th post features the reference person
-  "duration": 4,          // 4-second clips
+  "duration": 8,          // 8-second clips for longer walking motion
   "model": "fal-ai/vidu/reference-to-video",
   "preferred_backgrounds": ["temples", "nature", "warriors"]
 }
