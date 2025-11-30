@@ -1,0 +1,44 @@
+# Environment
+.env
+.env.local
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# Output files (regenerated)
+output/videos/*
+output/thumbnails/*
+output/prepared/*
+!output/videos/.gitkeep
+!output/thumbnails/.gitkeep
+!output/prepared/.gitkeep
+
+# Logs
+logs/*.json
+logs/*.log
+!logs/.gitkeep
+
+# Used images (keep originals)
+assets/images/*/used/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Replit
+.cache/
+.config/
+.upm/

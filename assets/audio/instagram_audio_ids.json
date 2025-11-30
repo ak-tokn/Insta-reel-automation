@@ -1,0 +1,40 @@
+{
+  "royalty_free_tracks": [
+    {
+      "id": "PLACEHOLDER_AUDIO_ID_1",
+      "name": "Ambient Dark",
+      "mood": "dark",
+      "bpm": 80,
+      "duration_seconds": 30
+    },
+    {
+      "id": "PLACEHOLDER_AUDIO_ID_2",
+      "name": "Cinematic Rise",
+      "mood": "epic",
+      "bpm": 90,
+      "duration_seconds": 30
+    },
+    {
+      "id": "PLACEHOLDER_AUDIO_ID_3",
+      "name": "Tech Minimal",
+      "mood": "minimal",
+      "bpm": 100,
+      "duration_seconds": 30
+    },
+    {
+      "id": "PLACEHOLDER_AUDIO_ID_4",
+      "name": "Ethereal Pad",
+      "mood": "atmospheric",
+      "bpm": 70,
+      "duration_seconds": 30
+    },
+    {
+      "id": "PLACEHOLDER_AUDIO_ID_5",
+      "name": "Digital Dreams",
+      "mood": "futuristic",
+      "bpm": 85,
+      "duration_seconds": 30
+    }
+  ],
+  "note": "Replace PLACEHOLDER_AUDIO_ID_X with actual Instagram royalty-free audio asset IDs from your Instagram Music Library"
+}

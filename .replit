@@ -1,0 +1,20 @@
+run = "python scheduler.py"
+language = "python3"
+entrypoint = "scheduler.py"
+
+[nix]
+channel = "stable-22_11"
+
+[env]
+PYTHONPATH = "${PYTHONPATH}:${HOME}/${REPL_SLUG}"
+
+[packager]
+language = "python3"
+
+[packager.features]
+enabledForHosting = false
+packageSearch = true
+guessImports = true
+
+[deployment]
+run = ["sh", "-c", "python scheduler.py"]
