@@ -134,19 +134,12 @@ class ReferencePersonVideoGenerator:
             "Content-Type": "application/json"
         }
         
-        payload = {
+        input_data = {
             "prompt": prompt,
-            "reference_image_urls": reference_urls,
-            "aspect_ratio": "9:16",
-            "resolution": "720p",
-            "duration": self.ref_config.get('duration', 4)
+            "reference_image_urls": reference_urls
         }
         
-        if background_image and background_image.exists():
-            bg_url = self._upload_image(background_image)
-            if bg_url:
-                payload["first_frame_image"] = bg_url
-                logger.info(f"Using background: {background_image.name}")
+        payload = {"input": input_data}
         
         try:
             submit_response = requests.post(
