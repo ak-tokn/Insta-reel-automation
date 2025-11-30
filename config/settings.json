@@ -215,5 +215,14 @@
     "style_preset": "cinematic",
     "cfg_scale": 7,
     "steps": 30
+  },
+  
+  "animation": {
+    "enabled": true,
+    "frequency": 5,
+    "duration": "5",
+    "provider": "fal-ai",
+    "model": "kling-video/v2.1/standard/image-to-video",
+    "motion_prompt": "Subtle ambient motion, gentle movement, cinematic atmosphere, slow drift, atmospheric particles floating"
   }
 }

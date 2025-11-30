@@ -19,6 +19,7 @@ from scripts.image_selector import ImageSelector
 from scripts.audio_selector import AudioSelector
 from scripts.video_builder import VideoBuilder
 from scripts.instagram_client import InstagramClient
+from scripts.animated_background import AnimatedBackgroundGenerator, get_post_count, increment_post_count
 
 logger = get_logger("Orchestrator")
 
@@ -37,6 +38,7 @@ class Orchestrator:
         self.audio_selector = AudioSelector()
         self.video_builder = VideoBuilder()
         self.instagram_client = InstagramClient()
+        self.animated_bg = AnimatedBackgroundGenerator()
         
         # Run tracking
         self.run_data = {
@@ -106,12 +108,35 @@ class Orchestrator:
                 "duration": t.elapsed
             })
             
+            # Step 5.5: Check for animated background
+            post_count = increment_post_count()
+            use_animated = self.animated_bg.should_generate_animated(post_count)
+            animated_video_path = None
+            
+            if use_animated:
+                logger.info(f"Post #{post_count}: Generating animated background...")
+                with Timer("Animated Background") as t:
+                    animated_video_path = self._generate_animated_background(prepared_image, content)
+                
+                if animated_video_path:
+                    self._log_step("animated_background", "success", {
+                        "video": animated_video_path.name,
+                        "duration": t.elapsed
+                    })
+                else:
+                    logger.warning("Animated background generation failed, using static image")
+                    self._log_step("animated_background", "failed", {
+                        "reason": "generation_failed",
+                        "duration": t.elapsed
+                    })
+            
             # Step 6: Build Video
             with Timer("Video Building") as t:
                 video_path, thumbnail_path = self._build_video(
                     prepared_image,
                     content,
-                    audio_info
+                    audio_info,
+                    animated_background=animated_video_path
                 )
             self._log_step("video_building", "success", {
                 "video": video_path.name,
@@ -207,14 +232,23 @@ class Orchestrator:
         mood = content.get('mood', 'dark')
         return self.audio_selector.select_audio(mood=mood)
     
-    def _build_video(self, image_path: Path, content: Dict, audio_info: Dict) -> tuple:
+    def _generate_animated_background(self, image_path: Path, content: Dict) -> Optional[Path]:
+        """Generate animated background from static image using AI."""
+        motion_prompt = self.settings.get('animation', {}).get(
+            'motion_prompt',
+            "Subtle ambient motion, gentle movement, cinematic atmosphere"
+        )
+        return self.animated_bg.generate_animated_background(image_path, motion_prompt)
+    
+    def _build_video(self, image_path: Path, content: Dict, audio_info: Dict, animated_background: Path = None) -> tuple:
         """Build the video with text overlay and audio."""
         logger.info("Building video...")
         
         return self.video_builder.build_video(
             image_path,
             content,
-            audio_info
+            audio_info,
+            animated_background=animated_background
         )
     
     def _post_to_instagram(self, video_path: Path, caption: str, audio_info: Dict, thumbnail_path: Path = None) -> Dict:

@@ -51,7 +51,8 @@ class VideoBuilder:
         image_path: Path,
         content: Dict,
         audio_info: Dict = None,
-        output_name: str = None
+        output_name: str = None,
+        animated_background: Path = None
     ) -> Tuple[Path, Path]:
         """
         Build a complete video with Ken Burns effect, text overlay, and audio.
@@ -61,6 +62,7 @@ class VideoBuilder:
             content: Content dict with quote, author, motivation
             audio_info: Audio selection info from AudioSelector
             output_name: Optional custom output filename
+            animated_background: Optional path to pre-generated animated video background
             
         Returns:
             Tuple of (video_path, thumbnail_path)
@@ -85,8 +87,12 @@ class VideoBuilder:
         motivation_overlay_path = self._create_motivation_overlay(motivation)
         
         try:
-            # Build video with Ken Burns effect
-            temp_video = self._apply_ken_burns(image_path)
+            # Use animated background if provided, otherwise apply Ken Burns effect
+            if animated_background and animated_background.exists():
+                logger.info(f"Using animated background: {animated_background.name}")
+                temp_video = self._prepare_animated_background(animated_background)
+            else:
+                temp_video = self._apply_ken_burns(image_path)
             
             # Add vignette effect
             video_with_vignette = self._add_vignette(temp_video)
@@ -447,6 +453,34 @@ class VideoBuilder:
                 return font
         
         return None  # Will use default
+    
+    def _prepare_animated_background(self, animated_path: Path) -> Path:
+        """Prepare the animated background video for use in the final video.
+        
+        Ensures the video matches the target duration, resolution, and format.
+        """
+        output_path = Path(tempfile.gettempdir()) / "stoic_animated_bg.mp4"
+        
+        cmd = [
+            'ffmpeg', '-y',
+            '-i', str(animated_path),
+            '-vf', f"scale={self.width}:{self.height}:force_original_aspect_ratio=decrease,pad={self.width}:{self.height}:(ow-iw)/2:(oh-ih)/2",
+            '-t', str(self.duration),
+            '-c:v', 'libx264',
+            '-pix_fmt', 'yuv420p',
+            '-preset', 'medium',
+            '-crf', '23',
+            '-an',
+            str(output_path)
+        ]
+        
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            logger.error(f"Animated background preparation failed: {result.stderr}")
+            raise RuntimeError(f"Animated background preparation failed: {result.stderr}")
+        
+        return output_path
     
     def _apply_ken_burns(self, image_path: Path) -> Path:
         """Apply Ken Burns (zoom/pan) effect using FFmpeg."""
