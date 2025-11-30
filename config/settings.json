@@ -226,5 +226,14 @@
     "motion_prompt": "Slow dramatic cinematic motion, gentle wind, clouds drifting slowly across sky, water softly rippling, leaves gently swaying, smooth slow camera movement, atmospheric depth",
     "preferred_categories": ["nature", "sonder", "warriors"],
     "avoid_categories": ["temples", "statues"]
+  },
+  
+  "reference_person": {
+    "enabled": true,
+    "frequency": 10,
+    "duration": 4,
+    "default_prompt": "Woman walking slowly and contemplatively through the scene, serene confident expression, flowing hair, cinematic lighting, atmospheric, elegant movement, medium shot",
+    "preferred_backgrounds": ["temples", "nature", "warriors"],
+    "model": "fal-ai/vidu/reference-to-video"
   }
 }

@@ -20,6 +20,7 @@ from scripts.audio_selector import AudioSelector
 from scripts.video_builder import VideoBuilder
 from scripts.instagram_client import InstagramClient
 from scripts.animated_background import AnimatedBackgroundGenerator, get_post_count, increment_post_count
+from scripts.reference_person_video import ReferencePersonVideoGenerator
 
 logger = get_logger("Orchestrator")
 
@@ -39,6 +40,7 @@ class Orchestrator:
         self.video_builder = VideoBuilder()
         self.instagram_client = InstagramClient()
         self.animated_bg = AnimatedBackgroundGenerator()
+        self.reference_person = ReferencePersonVideoGenerator()
         
         # Run tracking
         self.run_data = {
@@ -80,13 +82,17 @@ class Orchestrator:
                 "duration": t.elapsed
             })
             
-            # Check if this will be an animated post (check count without incrementing)
+            # Check if this will be a special post (check count without incrementing)
             current_post_count = get_post_count() + 1
-            use_animated = self.animated_bg.should_generate_animated(current_post_count)
+            use_reference_person = self.reference_person.should_use_reference_person(current_post_count)
+            use_animated = not use_reference_person and self.animated_bg.should_generate_animated(current_post_count)
             
-            # Step 3: Select Image (use animation-friendly images for animated posts)
+            # Step 3: Select Image
             with Timer("Image Selection") as t:
-                if use_animated:
+                if use_reference_person:
+                    logger.info(f"Post #{current_post_count} will feature reference person - selecting background")
+                    image_path, image_source = self._select_image_for_reference_person(content)
+                elif use_animated:
                     logger.info(f"Post #{current_post_count} will be animated - selecting animation-friendly image")
                     image_path, image_source = self._select_image_for_animation(content)
                 else:
@@ -95,6 +101,7 @@ class Orchestrator:
                 "image": image_path.name,
                 "source": image_source,
                 "for_animation": use_animated,
+                "for_reference_person": use_reference_person,
                 "duration": t.elapsed
             })
             
@@ -117,10 +124,27 @@ class Orchestrator:
                 "duration": t.elapsed
             })
             
-            # Step 5.5: Generate animated background if this is an animated post
+            # Step 5.5: Generate special video if applicable
             animated_video_path = None
             
-            if use_animated:
+            if use_reference_person:
+                logger.info(f"Post #{current_post_count}: Generating reference person video...")
+                with Timer("Reference Person Video") as t:
+                    animated_video_path = self._generate_reference_person_video(prepared_image, content)
+                
+                if animated_video_path:
+                    self._log_step("reference_person_video", "success", {
+                        "video": animated_video_path.name,
+                        "duration": t.elapsed
+                    })
+                else:
+                    logger.warning("Reference person video generation failed, using static image")
+                    self._log_step("reference_person_video", "failed", {
+                        "reason": "generation_failed",
+                        "duration": t.elapsed
+                    })
+            
+            elif use_animated:
                 logger.info(f"Post #{current_post_count}: Generating animated background...")
                 with Timer("Animated Background") as t:
                     animated_video_path = self._generate_animated_background(prepared_image, content)
@@ -230,6 +254,13 @@ class Orchestrator:
         mood = content.get('mood', 'contemplative')
         return self.image_selector.select_for_animation(mood=mood)
     
+    def _select_image_for_reference_person(self, content: Dict) -> tuple:
+        """Select a background image for reference person video (temples, nature work well)."""
+        logger.info("Selecting background for reference person...")
+        preferred = self.settings.get('reference_person', {}).get('preferred_backgrounds', ['temples', 'nature'])
+        category = preferred[0] if preferred else 'temples'
+        return self.image_selector.select_image(mood=content.get('mood'), category=category)
+    
     def _prepare_image(self, image_path: Path) -> Path:
         """Prepare image for video (resize/crop)."""
         logger.info("Preparing image...")
@@ -254,6 +285,14 @@ class Orchestrator:
             "Subtle ambient motion, gentle movement, cinematic atmosphere"
         )
         return self.animated_bg.generate_animated_background(image_path, motion_prompt)
+    
+    def _generate_reference_person_video(self, background_image: Path, content: Dict) -> Optional[Path]:
+        """Generate video with reference person in the scene."""
+        prompt = self.settings.get('reference_person', {}).get(
+            'default_prompt',
+            "Person walking slowly and contemplatively, serene expression, cinematic lighting"
+        )
+        return self.reference_person.generate_reference_video(background_image, prompt)
     
     def _build_video(self, image_path: Path, content: Dict, audio_info: Dict, animated_background: Path = None) -> tuple:
         """Build the video with text overlay and audio."""
