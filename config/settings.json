@@ -220,10 +220,10 @@
   "animation": {
     "enabled": true,
     "frequency": 5,
-    "duration": "5",
+    "duration": "10",
     "provider": "fal-ai",
     "model": "kling-video/v2.1/standard/image-to-video",
-    "motion_prompt": "Dramatic cinematic motion, wind blowing through hair and clothes, clouds moving across sky, water rippling, leaves rustling, dynamic camera movement, epic atmospheric effects",
+    "motion_prompt": "Slow dramatic cinematic motion, gentle wind, clouds drifting slowly across sky, water softly rippling, leaves gently swaying, smooth slow camera movement, atmospheric depth",
     "preferred_categories": ["nature", "sonder", "warriors"],
     "avoid_categories": ["temples", "statues"]
   }

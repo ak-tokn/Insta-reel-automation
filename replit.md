@@ -26,9 +26,11 @@ StoicAlgo is an automated content creation and posting system for Instagram Reel
 "animation": {
   "enabled": true,
   "frequency": 5,        // Every 5th post uses animated background
-  "duration": "5",       // 5-second generated clips
+  "duration": "10",      // 10-second clips (matches full reel, no looping)
   "provider": "fal-ai",
-  "model": "kling-video/v2.1/standard/image-to-video"
+  "model": "kling-video/v2.1/standard/image-to-video",
+  "preferred_categories": ["nature", "sonder", "warriors"],
+  "avoid_categories": ["temples", "statues"]
 }
 ```
 
