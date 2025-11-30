@@ -1,9 +1,10 @@
 run = "python scheduler.py"
 language = "python3"
 entrypoint = "scheduler.py"
+modules = ["python-3.12", "bash", "nix"]
 
 [nix]
-channel = "stable-22_11"
+channel = "stable-25_05"
 
 [env]
 PYTHONPATH = "${PYTHONPATH}:${HOME}/${REPL_SLUG}"
