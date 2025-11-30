@@ -223,6 +223,8 @@
     "duration": "5",
     "provider": "fal-ai",
     "model": "kling-video/v2.1/standard/image-to-video",
-    "motion_prompt": "Subtle ambient motion, gentle movement, cinematic atmosphere, slow drift, atmospheric particles floating"
+    "motion_prompt": "Dramatic cinematic motion, wind blowing through hair and clothes, clouds moving across sky, water rippling, leaves rustling, dynamic camera movement, epic atmospheric effects",
+    "preferred_categories": ["nature", "sonder", "warriors"],
+    "avoid_categories": ["temples", "statues"]
   }
 }

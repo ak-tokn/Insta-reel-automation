@@ -145,6 +145,40 @@ class ImageSelector:
         
         return random.choice(all_images)
     
+    def select_for_animation(self, mood: str = None) -> Tuple[Path, str]:
+        """
+        Select an image specifically suited for AI animation.
+        Prefers categories with dynamic elements (nature, sonder, warriors).
+        Avoids static architecture (temples, statues).
+        
+        Args:
+            mood: Optional mood to influence selection
+            
+        Returns:
+            Tuple of (image_path, source_type)
+        """
+        # Categories that animate well (have movement potential)
+        animation_friendly = ['nature', 'sonder', 'warriors']
+        
+        # Check which animation-friendly categories have images
+        available_categories = []
+        for cat in animation_friendly:
+            cat_path = self.images_path / cat
+            if cat_path.exists():
+                images = get_file_list(cat_path, self.supported_formats)
+                images = self._filter_excluded_folders(images)
+                if images:
+                    available_categories.append(cat)
+        
+        if available_categories:
+            selected_category = random.choice(available_categories)
+            logger.info(f"Selected animation-friendly category: {selected_category}")
+            return self.select_image(mood=mood, category=selected_category)
+        
+        # Fallback to regular selection if no animation-friendly images
+        logger.warning("No animation-friendly images available, using regular selection")
+        return self.select_image(mood=mood)
+    
     def _mood_to_category(self, mood: str, categories: List[str]) -> str:
         """Map mood to appropriate image category."""
         

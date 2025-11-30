@@ -80,12 +80,21 @@ class Orchestrator:
                 "duration": t.elapsed
             })
             
-            # Step 3: Select Image
+            # Check if this will be an animated post (check count without incrementing)
+            current_post_count = get_post_count() + 1
+            use_animated = self.animated_bg.should_generate_animated(current_post_count)
+            
+            # Step 3: Select Image (use animation-friendly images for animated posts)
             with Timer("Image Selection") as t:
-                image_path, image_source = self._select_image(content)
+                if use_animated:
+                    logger.info(f"Post #{current_post_count} will be animated - selecting animation-friendly image")
+                    image_path, image_source = self._select_image_for_animation(content)
+                else:
+                    image_path, image_source = self._select_image(content)
             self._log_step("image_selection", "success", {
                 "image": image_path.name,
                 "source": image_source,
+                "for_animation": use_animated,
                 "duration": t.elapsed
             })
             
@@ -108,9 +117,7 @@ class Orchestrator:
                 "duration": t.elapsed
             })
             
-            # Step 5.5: Check for animated background (check count without incrementing)
-            current_post_count = get_post_count() + 1  # Preview what the next count would be
-            use_animated = self.animated_bg.should_generate_animated(current_post_count)
+            # Step 5.5: Generate animated background if this is an animated post
             animated_video_path = None
             
             if use_animated:
@@ -216,6 +223,12 @@ class Orchestrator:
         logger.info("Selecting image...")
         mood = content.get('mood', 'contemplative')
         return self.image_selector.select_image(mood=mood)
+    
+    def _select_image_for_animation(self, content: Dict) -> tuple:
+        """Select animation-friendly image (nature, sonder, warriors - not temples/statues)."""
+        logger.info("Selecting animation-friendly image...")
+        mood = content.get('mood', 'contemplative')
+        return self.image_selector.select_for_animation(mood=mood)
     
     def _prepare_image(self, image_path: Path) -> Path:
         """Prepare image for video (resize/crop)."""
