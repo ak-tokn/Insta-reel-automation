@@ -37,7 +37,7 @@ def check_instagram():
     endpoint = f"{base_url}/{user_id}"
     params = {
         'access_token': access_token,
-        'fields': 'id,username,account_type,media_count'
+        'fields': 'id,username'
     }
     
     try:
