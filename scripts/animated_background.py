@@ -113,12 +113,14 @@ class AnimatedBackgroundGenerator:
                 timeout=30
             )
             
-            if submit_response.status_code != 200:
+            if submit_response.status_code not in [200, 202]:
                 logger.error(f"Failed to submit request: {submit_response.text}")
                 return None
             
             result = submit_response.json()
             request_id = result.get('request_id')
+            status_url = result.get('status_url')
+            response_url = result.get('response_url')
             
             if not request_id:
                 logger.error(f"No request_id in response: {result}")
@@ -126,22 +128,33 @@ class AnimatedBackgroundGenerator:
             
             logger.info(f"Request submitted, ID: {request_id}")
             
-            status_url = f"{self.base_url}/{self.model}/requests/{request_id}/status"
+            # Use the status_url from response, or construct if not provided
+            if not status_url:
+                status_url = f"{self.base_url}/{self.model}/requests/{request_id}/status"
+            if not response_url:
+                response_url = f"{self.base_url}/{self.model}/requests/{request_id}"
+            
             max_wait = 600
             start_time = time.time()
             
             while time.time() - start_time < max_wait:
                 status_response = requests.get(status_url, headers=headers, timeout=30)
                 
-                if status_response.status_code == 200:
+                if status_response.status_code in [200, 202]:
                     status_data = status_response.json()
                     status = status_data.get('status')
                     
                     logger.info(f"Generation status: {status}")
                     
                     if status == 'COMPLETED':
-                        result_url = f"{self.base_url}/{self.model}/requests/{request_id}"
-                        result_response = requests.get(result_url, headers=headers, timeout=30)
+                        # Check if response is embedded in status
+                        if 'response' in status_data:
+                            video_url = status_data.get('response', {}).get('video', {}).get('url')
+                            if video_url:
+                                return self._download_video(video_url, output_name)
+                        
+                        # Otherwise fetch from response_url
+                        result_response = requests.get(response_url, headers=headers, timeout=30)
                         
                         if result_response.status_code == 200:
                             result_data = result_response.json()
@@ -162,7 +175,7 @@ class AnimatedBackgroundGenerator:
                     else:
                         time.sleep(5)
                 else:
-                    logger.warning(f"Status check failed: {status_response.text}")
+                    logger.warning(f"Status check failed: {status_response.status_code} - {status_response.text}")
                     time.sleep(10)
             
             logger.error("Generation timed out")
