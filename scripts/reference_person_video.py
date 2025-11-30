@@ -148,13 +148,14 @@ class ReferencePersonVideoGenerator:
                             else:
                                 logger.info(f"API: {log}")
             
+            movement = self.ref_config.get('movement_amplitude', 'medium')
+            
             result = fal_client.subscribe(
                 self.model,
                 arguments={
                     "prompt": prompt,
                     "reference_image_urls": reference_urls,
-                    "aspect_ratio": "9:16",
-                    "movement_amplitude": "small"
+                    "movement_amplitude": movement
                 },
                 with_logs=True,
                 on_queue_update=on_queue_update

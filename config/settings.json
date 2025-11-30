@@ -231,9 +231,9 @@
   "reference_person": {
     "enabled": false,
     "frequency": 10,
-    "duration": 8,
-    "default_prompt": "Woman actively walking through the environment, full body visible, natural walking motion with arms swinging, confident stride, photorealistic, 4K quality, natural lighting, cinematic depth of field",
+    "default_prompt": "Real documentary footage of a woman moving gracefully through the scene, wide shot from distance showing full environment, authentic natural body language and movement, photorealistic human with natural skin texture showing pores and subtle imperfections, genuine facial expressions, shot on 35mm Kodak film stock with organic grain texture, golden hour natural lighting, shallow depth of field bokeh, 8K cinematic quality indistinguishable from real footage",
     "preferred_backgrounds": ["temples", "nature", "warriors"],
-    "model": "fal-ai/vidu/reference-to-video"
+    "model": "fal-ai/vidu/q1/reference-to-video",
+    "movement_amplitude": "medium"
   }
 }

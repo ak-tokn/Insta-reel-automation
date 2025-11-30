@@ -45,11 +45,12 @@ StoicAlgo is an automated content creation and posting system for Instagram Reel
 "reference_person": {
   "enabled": false,       // Toggle on/off (off by default)
   "frequency": 10,        // Every 10th post features the reference person
-  "duration": 8,          // 8-second clips for longer walking motion
-  "model": "fal-ai/vidu/reference-to-video",
+  "model": "fal-ai/vidu/q1/reference-to-video",  // Q1 = higher quality, ~5 sec videos
+  "movement_amplitude": "medium",  // small, medium, or large
   "preferred_backgrounds": ["temples", "nature", "warriors"]
 }
 ```
+Note: Vidu reference-to-video produces ~5-second clips (fixed by API). For 10-second reels, the video is looped/extended.
 
 ### Required Secrets
 - `FAL_API_KEY` - fal.ai API key for Kling and Vidu video generation
