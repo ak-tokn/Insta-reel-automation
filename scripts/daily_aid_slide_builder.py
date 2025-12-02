@@ -317,10 +317,13 @@ class DailyAidSlideBuilder:
         draw.text((left_margin, earnings_y), earnings_label, font=earnings_label_font, fill=grey_rgb)
         
         earnings_y += earnings_label_h + 12
-        self._draw_text_with_shadow(draw, (left_margin, earnings_y), monthly_income, amount_font, green_rgb, shadow_offset=3)
+        amount_with_asterisk = monthly_income + "*"
+        self._draw_text_with_shadow(draw, (left_margin, earnings_y), amount_with_asterisk, amount_font, green_rgb, shadow_offset=3)
         
         earnings_y += amount_h + 25
         
+        method_with_asterisk = "*" + income_method.lower()
+        method_lines = self._wrap_text(method_with_asterisk, method_font, max_text_width)
         for line in method_lines:
             draw.text((left_margin, earnings_y), line, font=method_font, fill=grey_rgb)
             earnings_y += method_line_h

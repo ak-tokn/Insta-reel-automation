@@ -168,7 +168,7 @@ OUTPUT FORMAT (JSON):
 {{
     "title": "DESCRIPTIVE action-based title that clearly explains what you're building. Examples: 'Building an AI Resume Review SaaS', 'Creating a Faceless TikTok Automation Pipeline', 'Selling White-Label ChatGPT Integrations to Agencies'. NO vague titles like 'Money Machine' or 'Digital Empire'.",
     
-    "income_method": "Short phrase: HOW the money is made (e.g., 'SaaS subscriptions at $29/mo', 'per-project fees of $200-500', 'affiliate commissions from tool signups')",
+    "income_method": "Descriptive explanation of the revenue model (1-2 sentences). Explain the pricing structure and customer acquisition. Example: 'Charge small businesses $99/month for automated email sequences. Target local service providers through LinkedIn outreach.' or 'Sell template packs on Gumroad for $15-30 each. Drive traffic through TikTok tutorials showing the templates in action.'",
     
     "summary": "One compelling sentence (under 20 words) that hooks them.",
     
