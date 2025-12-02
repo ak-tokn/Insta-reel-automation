@@ -304,7 +304,23 @@
     },
     "caption": {
       "max_length": 2200,
-      "hashtags": ["#AItools", "#MakeMoneyOnline", "#SideHustle", "#PassiveIncome", "#TechHacks", "#AIautomation", "#DigitalNomad", "#OnlineBusiness", "#ChatGPT", "#AIhustle"]
+      "hashtags": [
+        "#AI",
+        "#ChatGPT",
+        "#SideHustle",
+        "#PassiveIncome",
+        "#Entrepreneur",
+        "#AITools",
+        "#Automation",
+        "#OnlineIncome",
+        "#Solopreneur",
+        "#TechTips",
+        "#NoCode",
+        "#AIBusiness",
+        "#DigitalEntrepreneur",
+        "#MakeMoneyOnline",
+        "#BuildInPublic"
+      ]
     }
   }
 }
