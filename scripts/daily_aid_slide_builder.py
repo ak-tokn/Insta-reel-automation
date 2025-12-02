@@ -138,7 +138,7 @@ class DailyAidSlideBuilder:
         draw.text(pos, text, font=font, fill=fill)
     
     def build_title_slide(self, idea: Dict) -> Path:
-        """Build the title slide (first carousel image) - trendy and bold."""
+        """Build the title slide (first carousel image) - trendy and enticing."""
         img = self._create_base_image()
         img = self._add_gradient_overlay(img)
         draw = ImageDraw.Draw(img)
@@ -154,59 +154,62 @@ class DailyAidSlideBuilder:
         bbox = draw.textbbox((0, 0), header_full, font=self.font_subtitle)
         header_width = bbox[2] - bbox[0]
         header_x = (self.width - header_width) // 2
-        self._draw_text_with_shadow(draw, (header_x, 50), header_full, self.font_subtitle, accent_rgb, shadow_offset=3)
+        self._draw_text_with_shadow(draw, (header_x, 40), header_full, self.font_subtitle, accent_rgb, shadow_offset=3)
         
         title = idea.get('title', 'AI Money Idea')
-        title_lines = self._wrap_text(title.upper(), self.font_title_large, self.width - 80)
+        income_method = idea.get('income_method', 'automating tasks')
         
-        y_offset = 220
+        build_text = "BUILD AN"
+        bbox = draw.textbbox((0, 0), build_text, font=self.font_header)
+        x = (self.width - (bbox[2] - bbox[0])) // 2
+        draw.text((x, 130), build_text, font=self.font_header, fill=(180, 180, 180))
+        
+        title_lines = self._wrap_text(title.upper(), self.font_title_large, self.width - 80)
+        y_offset = 190
         for line in title_lines:
             bbox = draw.textbbox((0, 0), line, font=self.font_title_large)
             line_width = bbox[2] - bbox[0]
             x = (self.width - line_width) // 2
             self._draw_text_with_shadow(draw, (x, y_offset), line, self.font_title_large, accent_rgb, shadow_offset=5)
-            y_offset += 120
+            y_offset += 115
         
-        draw.line([(100, y_offset + 20), (self.width - 100, y_offset + 20)], fill=accent_rgb, width=4)
+        money_text = "TO MAKE MONEY BY"
+        bbox = draw.textbbox((0, 0), money_text, font=self.font_header)
+        x = (self.width - (bbox[2] - bbox[0])) // 2
+        draw.text((x, y_offset + 10), money_text, font=self.font_header, fill=(180, 180, 180))
         y_offset += 60
         
-        summary = idea.get('summary', '')
-        summary_lines = self._wrap_text(summary, self.font_body_large, self.width - 120)
-        
-        for line in summary_lines:
-            bbox = draw.textbbox((0, 0), line, font=self.font_body_large)
+        method_lines = self._wrap_text(income_method.upper(), self.font_step_title, self.width - 100)
+        for line in method_lines:
+            bbox = draw.textbbox((0, 0), line, font=self.font_step_title)
             line_width = bbox[2] - bbox[0]
             x = (self.width - line_width) // 2
-            draw.text((x, y_offset), line, font=self.font_body_large, fill=(230, 230, 230))
-            y_offset += 58
+            self._draw_text_with_shadow(draw, (x, y_offset), line, self.font_step_title, (255, 255, 255), shadow_offset=3)
+            y_offset += 65
         
-        earnings = idea.get('estimated_earnings', '')
-        difficulty = idea.get('difficulty', '')
-        time_to_money = idea.get('time_to_first_dollar', '')
+        draw.line([(100, y_offset + 25), (self.width - 100, y_offset + 25)], fill=accent_rgb, width=4)
         
-        if earnings or difficulty or time_to_money:
-            y_offset = self.height - 380
-            
-            secondary_rgb = self._hex_to_rgb(self.secondary_color)
-            
-            if earnings:
-                bbox = draw.textbbox((0, 0), earnings, font=self.font_cta)
+        monthly_income = idea.get('monthly_income', idea.get('estimated_earnings', '$500-2000/mo'))
+        if monthly_income:
+            earnings_text = f"Set up once and make {monthly_income} easily!"
+            earnings_lines = self._wrap_text(earnings_text, self.font_body_large, self.width - 100)
+            y_earnings = self.height - 380
+            for line in earnings_lines:
+                bbox = draw.textbbox((0, 0), line, font=self.font_body_large)
                 x = (self.width - (bbox[2] - bbox[0])) // 2
-                self._draw_text_with_shadow(draw, (x, y_offset), earnings, self.font_cta, (255, 255, 255), shadow_offset=3)
-                y_offset += 85
-            
-            if difficulty:
-                diff_text = f"Difficulty: {difficulty.upper()}"
-                bbox = draw.textbbox((0, 0), diff_text, font=self.font_body)
-                x = (self.width - (bbox[2] - bbox[0])) // 2
-                draw.text((x, y_offset), diff_text, font=self.font_body, fill=(150, 150, 150))
-                y_offset += 50
-            
-            if time_to_money:
-                time_text = f"First $ in: {time_to_money}"
-                bbox = draw.textbbox((0, 0), time_text, font=self.font_body)
-                x = (self.width - (bbox[2] - bbox[0])) // 2
-                draw.text((x, y_offset), time_text, font=self.font_body, fill=(150, 150, 150))
+                self._draw_text_with_shadow(draw, (x, y_earnings), line, self.font_body_large, (255, 255, 255), shadow_offset=2)
+                y_earnings += 55
+        
+        tagline = "The hardest part is getting started.."
+        tagline2 = "I just solved that - so give this a shot?"
+        
+        bbox = draw.textbbox((0, 0), tagline, font=self.font_body)
+        x = (self.width - (bbox[2] - bbox[0])) // 2
+        draw.text((x, self.height - 200), tagline, font=self.font_body, fill=(160, 160, 160))
+        
+        bbox = draw.textbbox((0, 0), tagline2, font=self.font_body)
+        x = (self.width - (bbox[2] - bbox[0])) // 2
+        draw.text((x, self.height - 155), tagline2, font=self.font_body, fill=(160, 160, 160))
         
         watermark = self.branding.get('watermark', '@techiavelli')
         bbox = draw.textbbox((0, 0), watermark, font=self.font_small)

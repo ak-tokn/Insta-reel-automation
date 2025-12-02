@@ -143,7 +143,9 @@ Create a sophisticated, grey-hat, money-making idea that uses AI and online tool
 
 OUTPUT FORMAT (JSON):
 {{
-    "title": "Catchy 3-6 word title that sounds like a cheat code (e.g., 'AI Ghostwriter Empire', 'The LinkedIn Scrape Stack', 'Automated Thumbnail Cash Machine')",
+    "title": "Short catchy name 2-4 words (e.g., 'AI Ghostwriter Empire', 'LinkedIn Scrape Stack', 'Thumbnail Cash Machine')",
+    
+    "income_method": "Short phrase describing HOW the money is made (e.g., 'selling automated content', 'charging monthly retainers', 'flipping AI-generated designs'). This completes the sentence 'make money by [income_method]'",
     
     "summary": "One compelling sentence (under 20 words) that makes this sound irresistible. Hook them.",
     
@@ -160,7 +162,7 @@ OUTPUT FORMAT (JSON):
     
     "tools_mentioned": ["List", "of", "specific", "tools", "mentioned"],
     
-    "estimated_earnings": "Realistic range like '$500-2000/month' or '$50-200 per client'",
+    "monthly_income": "Just the amount like '$500-2000/mo' or '$1000-3000/mo' - keep it short",
     
     "difficulty": "beginner/intermediate/advanced",
     
