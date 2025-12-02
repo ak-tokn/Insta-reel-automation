@@ -453,22 +453,32 @@ class DailyAidSlideBuilder:
         x = (self.width - (bbox[2] - bbox[0])) // 2
         self._draw_text_with_shadow(draw, (x, 290), cta_main, main_font, (255, 255, 255), shadow_offset=4)
         
-        cta_label2 = "and let AI guide you through it"
+        cta_label2 = "and let AI guide you through it step-by-step"
         bbox = draw.textbbox((0, 0), cta_label2, font=label_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, 420), cta_label2, font=label_font, fill=(160, 160, 160))
+        draw.text((x, 400), cta_label2, font=label_font, fill=(160, 160, 160))
+        
+        tip_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 28)
+        tip_text = "(remember - if you get confused just keep asking"
+        tip_text2 = "the chat to explain it.. over and over again as much as you need)"
+        bbox = draw.textbbox((0, 0), tip_text, font=tip_font)
+        x = (self.width - (bbox[2] - bbox[0])) // 2
+        draw.text((x, 455), tip_text, font=tip_font, fill=(120, 120, 120))
+        bbox = draw.textbbox((0, 0), tip_text2, font=tip_font)
+        x = (self.width - (bbox[2] - bbox[0])) // 2
+        draw.text((x, 488), tip_text2, font=tip_font, fill=(120, 120, 120))
         
         arrow_text = "↓"
-        arrow_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 140)
+        arrow_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 120)
         bbox = draw.textbbox((0, 0), arrow_text, font=arrow_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, 520), arrow_text, font=arrow_font, fill=green_rgb)
+        draw.text((x, 550), arrow_text, font=arrow_font, fill=green_rgb)
         
         hint_font = ImageFont.truetype('assets/fonts/Array-Wide.ttf', 55)
-        caption_hint = "Kickoff Prompt in Caption"
+        caption_hint = "Starter Prompt in Caption"
         bbox = draw.textbbox((0, 0), caption_hint, font=hint_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, 730), caption_hint, font=hint_font, fill=green_rgb)
+        draw.text((x, 720), caption_hint, font=hint_font, fill=green_rgb)
         
         tools = idea.get('tools_mentioned', [])
         if tools:
