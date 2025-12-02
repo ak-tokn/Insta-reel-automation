@@ -467,11 +467,11 @@ class DailyAidSlideBuilder:
         x = (self.width - (bbox[2] - bbox[0])) // 2
         draw.text((x, 520), arrow_text, font=arrow_font, fill=green_rgb)
         
-        hint_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 42)
-        caption_hint = "THE PROMPT IS IN THE CAPTION"
+        hint_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 42)
+        caption_hint = "Kickoff Prompt in Caption"
         bbox = draw.textbbox((0, 0), caption_hint, font=hint_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, 730), caption_hint, font=hint_font, fill=(180, 180, 180))
+        draw.text((x, 730), caption_hint, font=hint_font, fill=accent_rgb)
         
         tools = idea.get('tools_mentioned', [])
         if tools:
