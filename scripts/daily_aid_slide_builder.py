@@ -204,18 +204,20 @@ class DailyAidSlideBuilder:
         bbox = draw.textbbox((0, 0), header_text, font=self.font_display_large)
         header_width = bbox[2] - bbox[0]
         header_x = (self.width - header_width) // 2
-        self._draw_text_with_shadow(draw, (header_x, 50), header_text, self.font_display_large, accent_rgb, shadow_offset=4)
+        self._draw_text_with_shadow(draw, (header_x, 45), header_text, self.font_display_large, accent_rgb, shadow_offset=4)
         
         title = idea.get('title', 'AI Money Idea')
         income_method = idea.get('income_method', 'automating tasks')
         
+        focal_start_y = 320
+        
         build_text = "Build a"
-        bbox = draw.textbbox((0, 0), build_text, font=self.font_light)
+        bbox = draw.textbbox((0, 0), build_text, font=self.font_light_small)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, 180), build_text, font=self.font_light, fill=(200, 200, 200))
+        draw.text((x, focal_start_y), build_text, font=self.font_light_small, fill=(180, 180, 180))
         
         title_lines = self._wrap_text(title.upper(), self.font_title_large, self.width - 80)
-        y_offset = 230
+        y_offset = focal_start_y + 45
         for line in title_lines:
             bbox = draw.textbbox((0, 0), line, font=self.font_title_large)
             line_width = bbox[2] - bbox[0]
@@ -223,13 +225,13 @@ class DailyAidSlideBuilder:
             self._draw_text_with_shadow(draw, (x, y_offset), line, self.font_title_large, (255, 255, 255), shadow_offset=5)
             y_offset += 115
         
-        y_offset += 30
+        y_offset += 50
         
-        money_text = "to make money by"
-        bbox = draw.textbbox((0, 0), money_text, font=self.font_light)
+        money_text = "make money by"
+        bbox = draw.textbbox((0, 0), money_text, font=self.font_light_small)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, y_offset), money_text, font=self.font_light, fill=(180, 180, 180))
-        y_offset += 55
+        draw.text((x, y_offset), money_text, font=self.font_light_small, fill=(160, 160, 160))
+        y_offset += 45
         
         method_lines = self._wrap_text(income_method.lower(), self.font_body_large, self.width - 120)
         for line in method_lines:
@@ -239,33 +241,34 @@ class DailyAidSlideBuilder:
             draw.text((x, y_offset), line, font=self.font_body_large, fill=accent_rgb)
             y_offset += 55
         
-        y_offset += 40
-        draw.line([(150, y_offset), (self.width - 150, y_offset)], fill=(80, 80, 80), width=2)
-        
         monthly_income = idea.get('monthly_income', idea.get('estimated_earnings', '$500-2000/mo'))
         if monthly_income:
-            earnings_line1 = "Set up once and make"
-            earnings_line2 = f"{monthly_income} easily!"
+            earnings_text = f"set up in a few hours and sit back while you"
+            earnings_text2 = f"can make up to {monthly_income}"
             
-            y_earnings = self.height - 420
-            bbox = draw.textbbox((0, 0), earnings_line1, font=self.font_light)
+            y_earnings = self.height - 340
+            bbox = draw.textbbox((0, 0), earnings_text, font=self.font_light_small)
             x = (self.width - (bbox[2] - bbox[0])) // 2
-            draw.text((x, y_earnings), earnings_line1, font=self.font_light, fill=(200, 200, 200))
+            draw.text((x, y_earnings), earnings_text, font=self.font_light_small, fill=(180, 180, 180))
             
-            bbox = draw.textbbox((0, 0), earnings_line2, font=self.font_step_title)
+            bbox = draw.textbbox((0, 0), earnings_text2, font=self.font_light_small)
             x = (self.width - (bbox[2] - bbox[0])) // 2
-            self._draw_text_with_shadow(draw, (x, y_earnings + 50), earnings_line2, self.font_step_title, (255, 255, 255), shadow_offset=3)
+            draw.text((x, y_earnings + 38), earnings_text2, font=self.font_light_small, fill=(180, 180, 180))
         
         tagline = "The hardest part is getting started.."
         tagline2 = "I just solved that - so give this a shot?"
         
-        bbox = draw.textbbox((0, 0), tagline, font=self.font_light_small)
-        x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 180), tagline, font=self.font_light_small, fill=(140, 140, 140))
+        bbox = draw.textbbox((0, 0), tagline, font=self.font_display_large)
+        tagline_scale = 0.42
+        tagline_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', int(85 * tagline_scale))
         
-        bbox = draw.textbbox((0, 0), tagline2, font=self.font_light_small)
+        bbox = draw.textbbox((0, 0), tagline, font=tagline_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 145), tagline2, font=self.font_light_small, fill=(140, 140, 140))
+        draw.text((x, self.height - 200), tagline, font=tagline_font, fill=accent_rgb)
+        
+        bbox = draw.textbbox((0, 0), tagline2, font=tagline_font)
+        x = (self.width - (bbox[2] - bbox[0])) // 2
+        draw.text((x, self.height - 155), tagline2, font=tagline_font, fill=accent_rgb)
         
         watermark = self.branding.get('watermark', '@techiavelli')
         bbox = draw.textbbox((0, 0), watermark, font=self.font_small)
