@@ -176,7 +176,7 @@ OUTPUT FORMAT (JSON):
     
     "revenue": {{
         "estimate": "The realistic monthly income like '$200-600/mo' or '$2000-4000/mo' - MUST be specific to THIS project",
-        "assumptions": "Brief explanation of how you calculated this (e.g., '10 clients at $50/mo each' or '200 template sales at $15 each')"
+        "assumptions": "Brief explanation: [X] clients/sales at $[Y] each. Include timeline (e.g., 'after 3-6 months of consistent outreach' or 'once you have 20+ pieces of content driving traffic'). Be realistic about ramp-up time."
     }},
     
     "steps": [
@@ -210,6 +210,7 @@ CRITICAL RULES:
    - "Create the [UI/dashboard/pipeline] with [specific tools]"
    - "Deploy and set up [payment/auth/analytics]"
    - "Launch on [specific platforms] with [specific strategy]"
+   - REQUIRED: Include a "Scale to [X] customers" step that explains the SPECIFIC acquisition strategy to reach the revenue target. If you're projecting $2000/mo from $50/mo subscriptions, you need 40 clients - explain exactly HOW to get them (cold outreach numbers, content strategy, ad spend, etc.)
    
 3. EXTRA_CREDIT is optional - only include when there's a real automation opportunity:
    - MCPs: Replit MCP, Perplexity MCP, filesystem MCP
