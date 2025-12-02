@@ -246,7 +246,7 @@ CRITICAL RULES:
    - "Create the [UI/dashboard/pipeline] with [specific tools]"
    - "Deploy and set up [payment/auth/analytics]"
    - "Launch on [specific platforms] with [specific strategy]"
-   - REQUIRED: Include a "Scale to [X] customers" step that explains the SPECIFIC acquisition strategy to reach the revenue target. If you're projecting $2000/mo from $50/mo subscriptions, you need 40 clients - explain exactly HOW to get them (cold outreach numbers, content strategy, ad spend, etc.)
+   - REQUIRED: Include a "Scale to [X] customers" step that EXPLICITLY ties back to the revenue target. The description MUST include the math: "At $[price]/client, getting [X] clients = $[revenue]/mo". Example: "Land 15 clients at $149/mo = $2,235/mo. Send 50 LinkedIn DMs/day to local business owners. Expect 5% response rate, 20% close rate. That's 3-4 new clients per month." This motivates viewers by showing the concrete path to the money.
    
 3. EXTRA_CREDIT is optional - only include when there's a real automation opportunity:
    - MCPs: Replit MCP, Perplexity MCP, filesystem MCP
