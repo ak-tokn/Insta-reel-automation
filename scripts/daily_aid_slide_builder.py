@@ -263,15 +263,13 @@ class DailyAidSlideBuilder:
         header_text = "Daily Dose of Ai'ds"
         header_font = ImageFont.truetype('assets/fonts/Array-Wide.ttf', 95)
         bbox = draw.textbbox((0, 0), header_text, font=header_font)
-        header_x = (self.width - (bbox[2] - bbox[0])) // 2
         header_height = bbox[3] - bbox[1]
-        self._draw_text_with_shadow(draw, (header_x, 25), header_text, header_font, accent_rgb, shadow_offset=4)
+        self._draw_text_with_shadow(draw, (left_margin, 25), header_text, header_font, accent_rgb, shadow_offset=4)
         
         number_text = f"#{idea_number}"
-        number_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 70)
+        number_font = ImageFont.truetype('assets/fonts/Array-Wide.ttf', 70)
         bbox = draw.textbbox((0, 0), number_text, font=number_font)
-        number_x = (self.width - (bbox[2] - bbox[0])) // 2
-        self._draw_text_with_shadow(draw, (number_x, 25 + header_height + 10), number_text, number_font, accent_rgb, shadow_offset=3)
+        self._draw_text_with_shadow(draw, (left_margin, 25 + header_height + 10), number_text, number_font, accent_rgb, shadow_offset=3)
         
         title = idea.get('title', 'AI Money Idea')
         income_method = idea.get('income_method', 'automating tasks')
