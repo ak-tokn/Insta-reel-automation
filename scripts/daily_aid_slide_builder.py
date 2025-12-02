@@ -205,8 +205,30 @@ class DailyAidSlideBuilder:
         draw.text((x + shadow_offset, y + shadow_offset), text, font=font, fill=(0, 0, 0))
         draw.text(pos, text, font=font, fill=fill)
     
+    def _get_dynamic_font(self, text: str, font_path: str, max_width: int, max_size: int, min_size: int = 24) -> ImageFont.FreeTypeFont:
+        """Get a font sized to fit text within max_width."""
+        for size in range(max_size, min_size - 1, -2):
+            font = ImageFont.truetype(font_path, size)
+            dummy_img = Image.new('RGB', (1, 1))
+            dummy_draw = ImageDraw.Draw(dummy_img)
+            bbox = dummy_draw.textbbox((0, 0), text, font=font)
+            if bbox[2] - bbox[0] <= max_width:
+                return font
+        return ImageFont.truetype(font_path, min_size)
+    
+    def _get_text_height(self, text: str, font: ImageFont.FreeTypeFont, max_width: int) -> int:
+        """Calculate total height needed for wrapped text."""
+        lines = self._wrap_text(text, font, max_width)
+        dummy_img = Image.new('RGB', (1, 1))
+        dummy_draw = ImageDraw.Draw(dummy_img)
+        total_height = 0
+        for line in lines:
+            bbox = dummy_draw.textbbox((0, 0), line, font=font)
+            total_height += bbox[3] - bbox[1] + 10
+        return total_height
+
     def build_title_slide(self, idea: Dict) -> Path:
-        """Build the title slide (first carousel image) - trendy and eye-catching."""
+        """Build the title slide with dynamic sizing to fit all content."""
         img = self._create_title_background()
         draw = ImageDraw.Draw(img)
         
@@ -217,77 +239,94 @@ class DailyAidSlideBuilder:
         draw.rectangle([(0, 0), (self.width, 6)], fill=accent_rgb)
         draw.rectangle([(0, self.height - 6), (self.width, self.height)], fill=accent_rgb)
         
+        padding = 60
+        max_text_width = self.width - (padding * 2)
+        
         header_text = f"Daily Ai'Ds #{idea_number}"
-        bbox = draw.textbbox((0, 0), header_text, font=self.font_display_xl)
-        header_width = bbox[2] - bbox[0]
-        header_x = (self.width - header_width) // 2
-        self._draw_text_with_shadow(draw, (header_x, 40), header_text, self.font_display_xl, accent_rgb, shadow_offset=5)
+        header_font = self._get_dynamic_font(header_text, 'assets/fonts/Comico-Regular.ttf', max_text_width, 100, 60)
+        bbox = draw.textbbox((0, 0), header_text, font=header_font)
+        header_x = (self.width - (bbox[2] - bbox[0])) // 2
+        self._draw_text_with_shadow(draw, (header_x, 30), header_text, header_font, accent_rgb, shadow_offset=4)
+        header_height = bbox[3] - bbox[1]
         
         title = idea.get('title', 'AI Money Idea')
         income_method = idea.get('income_method', 'automating tasks')
-        
-        focal_start_y = 340
-        
-        label_text = "Easy Prompting Idea:"
-        bbox = draw.textbbox((0, 0), label_text, font=self.font_montserrat_400)
-        x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, focal_start_y), label_text, font=self.font_montserrat_400, fill=(160, 160, 160))
-        
-        title_lines = self._wrap_text(title.upper(), self.font_stardom_large, self.width - 100)
-        y_offset = focal_start_y + 60
-        for line in title_lines:
-            bbox = draw.textbbox((0, 0), line, font=self.font_stardom_large)
-            line_width = bbox[2] - bbox[0]
-            x = (self.width - line_width) // 2
-            self._draw_text_with_shadow(draw, (x, y_offset), line, self.font_stardom_large, (255, 255, 255), shadow_offset=4)
-            y_offset += 100
-        
-        y_offset += 60
-        
-        money_text = "make money by"
-        bbox = draw.textbbox((0, 0), money_text, font=self.font_montserrat_400_medium)
-        x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, y_offset), money_text, font=self.font_montserrat_400_medium, fill=(150, 150, 150))
-        y_offset += 50
-        
-        method_lines = self._wrap_text(income_method.lower(), self.font_montserrat_500, self.width - 100)
-        for line in method_lines:
-            bbox = draw.textbbox((0, 0), line, font=self.font_montserrat_500)
-            line_width = bbox[2] - bbox[0]
-            x = (self.width - line_width) // 2
-            draw.text((x, y_offset), line, font=self.font_montserrat_500, fill=accent_rgb)
-            y_offset += 50
-        
         monthly_income = idea.get('monthly_income', idea.get('estimated_earnings', '$500-2000/mo'))
-        if monthly_income:
-            earnings_text = "set up in hours and make up to"
-            
-            y_earnings = self.height - 320
-            bbox = draw.textbbox((0, 0), earnings_text, font=self.font_montserrat_400_medium)
-            x = (self.width - (bbox[2] - bbox[0])) // 2
-            draw.text((x, y_earnings), earnings_text, font=self.font_montserrat_400_medium, fill=(170, 170, 170))
-            
-            bbox = draw.textbbox((0, 0), monthly_income, font=self.font_montserrat_500)
-            x = (self.width - (bbox[2] - bbox[0])) // 2
-            draw.text((x, y_earnings + 42), monthly_income, font=self.font_montserrat_500, fill=green_rgb)
         
+        title_font = self._get_dynamic_font(title.upper(), 'assets/fonts/Stardom-Regular.ttf', max_text_width, 85, 45)
+        
+        fixed_bottom_height = 200
+        available_middle = self.height - (30 + header_height + 80) - fixed_bottom_height
+        
+        content_start_y = 30 + header_height + 80
+        
+        label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 32)
+        label_text = "Easy Prompting Idea:"
+        bbox = draw.textbbox((0, 0), label_text, font=label_font)
+        x = (self.width - (bbox[2] - bbox[0])) // 2
+        draw.text((x, content_start_y), label_text, font=label_font, fill=(160, 160, 160))
+        
+        title_y = content_start_y + 50
+        title_lines = self._wrap_text(title.upper(), title_font, max_text_width)
+        bbox = draw.textbbox((0, 0), "Ag", font=title_font)
+        line_height = bbox[3] - bbox[1] + 12
+        
+        for line in title_lines:
+            bbox = draw.textbbox((0, 0), line, font=title_font)
+            line_width = bbox[2] - bbox[0]
+            x = (self.width - line_width) // 2
+            self._draw_text_with_shadow(draw, (x, title_y), line, title_font, (255, 255, 255), shadow_offset=3)
+            title_y += line_height
+        
+        method_y = title_y + 40
+        
+        money_label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 28)
+        money_text = "make money by"
+        bbox = draw.textbbox((0, 0), money_text, font=money_label_font)
+        x = (self.width - (bbox[2] - bbox[0])) // 2
+        draw.text((x, method_y), money_text, font=money_label_font, fill=(150, 150, 150))
+        
+        method_y += 38
+        method_font = self._get_dynamic_font(income_method.lower(), 'assets/fonts/Montserrat-Light.ttf', max_text_width, 38, 24)
+        method_lines = self._wrap_text(income_method.lower(), method_font, max_text_width)
+        for line in method_lines:
+            bbox = draw.textbbox((0, 0), line, font=method_font)
+            line_width = bbox[2] - bbox[0]
+            x = (self.width - line_width) // 2
+            draw.text((x, method_y), line, font=method_font, fill=accent_rgb)
+            method_y += 42
+        
+        bottom_section_y = self.height - fixed_bottom_height
+        
+        if monthly_income:
+            earnings_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 26)
+            earnings_text = "set up in hours and make up to"
+            bbox = draw.textbbox((0, 0), earnings_text, font=earnings_font)
+            x = (self.width - (bbox[2] - bbox[0])) // 2
+            draw.text((x, bottom_section_y), earnings_text, font=earnings_font, fill=(170, 170, 170))
+            
+            income_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 36)
+            bbox = draw.textbbox((0, 0), monthly_income, font=income_font)
+            x = (self.width - (bbox[2] - bbox[0])) // 2
+            draw.text((x, bottom_section_y + 35), monthly_income, font=income_font, fill=green_rgb)
+        
+        tagline_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 26)
         tagline = "The hardest part is getting started.."
         tagline2 = "I just solved that - so give this a shot?"
         
-        tagline_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 32)
-        
         bbox = draw.textbbox((0, 0), tagline, font=tagline_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 190), tagline, font=tagline_font, fill=accent_rgb)
+        draw.text((x, self.height - 115), tagline, font=tagline_font, fill=accent_rgb)
         
         bbox = draw.textbbox((0, 0), tagline2, font=tagline_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 150), tagline2, font=tagline_font, fill=accent_rgb)
+        draw.text((x, self.height - 80), tagline2, font=tagline_font, fill=accent_rgb)
         
         watermark = self.branding.get('watermark', '@techiavelli')
-        bbox = draw.textbbox((0, 0), watermark, font=self.font_stardom_medium)
+        watermark_font = ImageFont.truetype('assets/fonts/Stardom-Regular.ttf', 28)
+        bbox = draw.textbbox((0, 0), watermark, font=watermark_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 70), watermark, font=self.font_stardom_medium, fill=(120, 120, 120))
+        draw.text((x, self.height - 45), watermark, font=watermark_font, fill=(120, 120, 120))
         
         output_path = self.output_dir / f"slide_00_title.png"
         img.save(output_path, 'PNG', quality=95)
@@ -340,7 +379,7 @@ class DailyAidSlideBuilder:
         return output_path
     
     def build_cta_slide(self, idea: Dict) -> Path:
-        """Build the call-to-action slide (final carousel image) - matches title slide styling."""
+        """Build the call-to-action slide with dynamic sizing to fit all content."""
         img = self._create_title_background()
         draw = ImageDraw.Draw(img)
         
@@ -350,52 +389,69 @@ class DailyAidSlideBuilder:
         draw.rectangle([(0, 0), (self.width, 6)], fill=accent_rgb)
         draw.rectangle([(0, self.height - 6), (self.width, self.height)], fill=accent_rgb)
         
+        padding = 60
+        max_text_width = self.width - (padding * 2)
+        
+        header_font = self._get_dynamic_font("Ready to Start?", 'assets/fonts/Comico-Regular.ttf', max_text_width, 90, 50)
         ready_text = "Ready to Start?"
-        bbox = draw.textbbox((0, 0), ready_text, font=self.font_display_xl)
+        bbox = draw.textbbox((0, 0), ready_text, font=header_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        self._draw_text_with_shadow(draw, (x, 180), ready_text, self.font_display_xl, accent_rgb, shadow_offset=5)
+        self._draw_text_with_shadow(draw, (x, 80), ready_text, header_font, accent_rgb, shadow_offset=4)
+        header_height = bbox[3] - bbox[1]
         
+        content_start_y = 80 + header_height + 80
+        
+        label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 32)
         cta_label = "Just copy the caption below into"
-        bbox = draw.textbbox((0, 0), cta_label, font=self.font_montserrat_400)
+        bbox = draw.textbbox((0, 0), cta_label, font=label_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, 380), cta_label, font=self.font_montserrat_400, fill=(160, 160, 160))
+        draw.text((x, content_start_y), cta_label, font=label_font, fill=(160, 160, 160))
         
+        main_y = content_start_y + 55
         cta_main = "CHATGPT OR CLAUDE"
-        bbox = draw.textbbox((0, 0), cta_main, font=self.font_stardom_large)
+        main_font = self._get_dynamic_font(cta_main, 'assets/fonts/Stardom-Regular.ttf', max_text_width, 75, 40)
+        bbox = draw.textbbox((0, 0), cta_main, font=main_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        self._draw_text_with_shadow(draw, (x, 440), cta_main, self.font_stardom_large, (255, 255, 255), shadow_offset=4)
+        self._draw_text_with_shadow(draw, (x, main_y), cta_main, main_font, (255, 255, 255), shadow_offset=3)
+        main_height = bbox[3] - bbox[1]
         
+        label2_y = main_y + main_height + 25
         cta_label2 = "and let AI guide you through it"
-        bbox = draw.textbbox((0, 0), cta_label2, font=self.font_montserrat_400)
+        bbox = draw.textbbox((0, 0), cta_label2, font=label_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, 560), cta_label2, font=self.font_montserrat_400, fill=(160, 160, 160))
+        draw.text((x, label2_y), cta_label2, font=label_font, fill=(160, 160, 160))
         
+        arrow_y = label2_y + 80
         arrow_text = "↓"
-        arrow_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 120)
+        arrow_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 100)
         bbox = draw.textbbox((0, 0), arrow_text, font=arrow_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, 680), arrow_text, font=arrow_font, fill=green_rgb)
+        draw.text((x, arrow_y), arrow_text, font=arrow_font, fill=green_rgb)
         
+        hint_y = arrow_y + 130
+        hint_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 30)
         caption_hint = "THE PROMPT IS IN THE CAPTION"
-        bbox = draw.textbbox((0, 0), caption_hint, font=self.font_montserrat_400_medium)
+        bbox = draw.textbbox((0, 0), caption_hint, font=hint_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, 850), caption_hint, font=self.font_montserrat_400_medium, fill=(180, 180, 180))
+        draw.text((x, hint_y), caption_hint, font=hint_font, fill=(180, 180, 180))
         
         tools = idea.get('tools_mentioned', [])
         if tools:
+            tools_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 26)
             tools_text = "Tools: " + ", ".join(tools[:5])
-            tools_lines = self._wrap_text(tools_text, self.font_montserrat_400_medium, self.width - 160)
-            y_tools = self.height - 180
+            tools_lines = self._wrap_text(tools_text, tools_font, max_text_width)
+            y_tools = self.height - 140
             for line in tools_lines:
-                bbox = draw.textbbox((0, 0), line, font=self.font_montserrat_400_medium)
+                bbox = draw.textbbox((0, 0), line, font=tools_font)
                 x = (self.width - (bbox[2] - bbox[0])) // 2
-                draw.text((x, y_tools), line, font=self.font_montserrat_400_medium, fill=(120, 120, 120))
-                y_tools += 45
+                draw.text((x, y_tools), line, font=tools_font, fill=(120, 120, 120))
+                y_tools += 35
         
         watermark = self.branding.get('watermark', '@techiavelli')
-        bbox = draw.textbbox((0, 0), watermark, font=self.font_stardom_medium)
+        watermark_font = ImageFont.truetype('assets/fonts/Stardom-Regular.ttf', 28)
+        bbox = draw.textbbox((0, 0), watermark, font=watermark_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 70), watermark, font=self.font_stardom_medium, fill=(120, 120, 120))
+        draw.text((x, self.height - 45), watermark, font=watermark_font, fill=(120, 120, 120))
         
         output_path = self.output_dir / "slide_99_cta.png"
         img.save(output_path, 'PNG', quality=95)
