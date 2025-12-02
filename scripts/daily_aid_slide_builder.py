@@ -398,7 +398,7 @@ class DailyAidSlideBuilder:
             extra_text = f"Extra Credit: {extra_credit}"
             extra_lines = self._wrap_text(extra_text, extra_credit_font, max_text_width)
             
-            extra_y = self.height - 140
+            extra_y = self.height - 200
             for line in extra_lines:
                 draw.text((padding, extra_y), line, font=extra_credit_font, fill=(0, 180, 100))
                 extra_y += 38
