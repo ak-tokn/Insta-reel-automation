@@ -272,5 +272,39 @@
       "glow_color": "#FF4444",
       "size_multiplier": 1.3
     }
+  },
+  
+  "daily_aids": {
+    "enabled": true,
+    "llm": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "temperature": 0.85,
+      "max_tokens": 3000
+    },
+    "carousel": {
+      "width": 1080,
+      "height": 1350,
+      "background_color": "#0A0A0A",
+      "accent_color": "#00FF88",
+      "secondary_color": "#FF6B35",
+      "title_font": "assets/fonts/Panchang-Regular.ttf",
+      "body_font": "assets/fonts/Paquito-Regular.ttf",
+      "title_size": 72,
+      "subtitle_size": 42,
+      "body_size": 36,
+      "step_number_size": 120,
+      "min_steps": 5,
+      "max_steps": 10
+    },
+    "branding": {
+      "header_text": "DAILY AI'DS",
+      "watermark": "@techiavelli",
+      "cta_text": "Copy the caption into Claude/ChatGPT to get started"
+    },
+    "caption": {
+      "max_length": 2200,
+      "hashtags": ["#AItools", "#MakeMoneyOnline", "#SideHustle", "#PassiveIncome", "#TechHacks", "#AIautomation", "#DigitalNomad", "#OnlineBusiness", "#ChatGPT", "#AIhustle"]
+    }
   }
 }
