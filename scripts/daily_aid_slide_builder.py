@@ -309,8 +309,8 @@ class DailyAidSlideBuilder:
             earnings_y += method_line_h
         
         tagline_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 30)
-        tagline = "The hardest part is getting started.."
-        tagline2 = "I just solved that - so give this a shot?"
+        tagline = "The hardest part is getting started..."
+        tagline2 = "So why give it a shot?"
         
         bbox = draw.textbbox((0, 0), tagline, font=tagline_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
