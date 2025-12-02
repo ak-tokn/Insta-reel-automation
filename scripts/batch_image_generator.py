@@ -177,9 +177,22 @@ def generate_dynamic_prompt(category: str) -> str:
 class BatchImageGenerator:
     """Generates batches of categorized AI images."""
     
-    def __init__(self):
+    def __init__(self, save_to_category_folders: bool = True):
+        """
+        Initialize batch generator.
+        
+        Args:
+            save_to_category_folders: If True, save directly to assets/images/<category>/
+                                      If False, save to assets/images/ai_injected/<category>/
+        """
         self.injector = AIImageInjector()
-        self.output_base = Path(__file__).parent.parent / "assets/images/ai_injected"
+        self.save_to_category_folders = save_to_category_folders
+        
+        # Set output base depending on mode
+        if save_to_category_folders:
+            self.output_base = Path(__file__).parent.parent / "assets/images"
+        else:
+            self.output_base = Path(__file__).parent.parent / "assets/images/ai_injected"
         
         # Stats tracking
         self.stats = {

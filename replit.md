@@ -4,8 +4,10 @@
 StoicAlgo is an automated content creation and posting system for Instagram, focused on stoic/philosophical quotes (Reels) and AI-powered money-making ideas (Carousel posts). The system generates video and image content with text overlays, background music, and posts on a configurable schedule.
 
 ## Recent Changes
+- **Dec 02, 2025**: Added weekly batch image generator - 10 new images per category every Sunday at 3AM
+- **Dec 02, 2025**: Updated prompt to use generic brand names (ChatGPT, Claude) instead of specific model versions (GPT-4o)
 - **Dec 02, 2025**: Updated schedule: 2 Reels (8am, 6pm) + 1 Daily Ai'ds (12pm) per day
-- **Dec 02, 2025**: Enhanced idea generation with 30+ creative themes and modern tech requirements (GPT-4o, Claude 3.5)
+- **Dec 02, 2025**: Enhanced idea generation with 30+ creative themes
 - **Dec 02, 2025**: Added "(ai can do it)" indicator for steps AI can fully automate
 - **Dec 02, 2025**: Scaling steps now show revenue math (price × clients = target)
 - **Dec 02, 2025**: Added "Daily Ai'ds" carousel post feature - AI-generated money-making ideas with step-by-step breakdowns
@@ -32,11 +34,19 @@ StoicAlgo is an automated content creation and posting system for Instagram, foc
 - `scripts/quote_service.py` - LLM-powered quote generation
 - `scripts/instagram_client.py` - Instagram posting via Graph API (Reels + Carousels)
 
-### Daily Ai'ds Components (NEW)
+### Daily Ai'ds Components
 - `scripts/daily_aid_service.py` - OpenAI-powered business idea generation
 - `scripts/daily_aid_slide_builder.py` - Pillow-based carousel image rendering
 - `scripts/daily_aids_orchestrator.py` - Coordinates idea generation, slide building, and posting
 - `logs/daily_aids_count.json` - Tracks the current Daily Ai'ds number
+
+### Weekly Batch Image Generator
+- `scripts/weekly_image_batch.py` - Weekly batch generator (10 images per category)
+- `scripts/batch_image_generator.py` - Core batch generation with dynamic prompts
+- `logs/weekly_batch_log.json` - Tracks batch runs and prevents duplicate runs
+- Runs every Sunday at 3AM automatically
+- Images saved directly to `assets/images/<category>/` folders
+- Uses fal.ai/Stability API for generation
 
 ### Reference Person
 - `assets/reference_person/` - Contains reference images for Vidu API (up to 7 images)
