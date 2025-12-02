@@ -127,16 +127,31 @@ Identify where MCPs (Model Context Protocol), plugins, or automation tools could
 
 Only include "extra_credit" when there's a genuine automation opportunity.
 
-Categories to explore:
-- AI automation services for businesses
-- Content creation at scale (faceless YouTube, AI blogs)
-- Digital products and templates
-- Freelance services with AI leverage
-- Micro-SaaS and tool building
-- AI-enhanced consulting
-- Data and research services
+CREATIVITY MANDATE:
+You MUST generate UNIQUE, unexpected ideas. Avoid obvious suggestions like "AI blog writer" or "social media scheduler".
+Think about underserved niches, weird intersections, and problems nobody is solving yet.
 
-Avoid: Dropshipping, generic courses, crypto/NFT, high capital requirements, MLM.
+Categories to explore (mix and match creatively):
+- AI automation for SPECIFIC industries (veterinary clinics, funeral homes, escape rooms, pawn shops, tattoo parlors)
+- Niche content empires (AI-generated meditation scripts, historical reenactment videos, ASMR for pets)
+- B2B tools for overlooked professions (notaries, court reporters, home inspectors, appraisers)
+- Arbitrage and data plays (event ticket alerts, real estate data, government contract mining)
+- Creator economy tools (AI ghostwriting for LinkedIn influencers, podcast clip generators, newsletter automation)
+- Local service enhancements (AI menu optimization for restaurants, review response bots, appointment confirmations)
+- Education micro-niches (AI tutoring for specific exams, language learning for niche languages, skill certifications)
+- Hobbyist monetization (AI pattern generators for knitters, recipe scaling for bakers, aquarium maintenance planners)
+- Professional services augmentation (AI briefs for lawyers, report generators for inspectors, estimate calculators)
+- Unusual digital products (AI-generated coloring books, custom crossword puzzles, personalized children's stories)
+- Community and membership plays (paid Discord bots, niche forum tools, exclusive data feeds)
+- Automation-as-a-service (inbox zero services, calendar optimization, expense categorization)
+
+UNCONVENTIONAL THINKING:
+- What problems do people complain about in Reddit threads that nobody has solved?
+- What tasks do small business owners hate doing manually?
+- What could you build for a $500M industry that has no good software?
+- What would a lazy genius automate to never work again?
+
+Avoid: Dropshipping, generic courses, crypto/NFT, high capital requirements, MLM, obvious ideas everyone has seen.
 
 Always respond in valid JSON format."""
 
@@ -144,16 +159,36 @@ Always respond in valid JSON format."""
         """Build the prompt for generating a Daily Ai'ds idea."""
         
         idea_themes = [
-            "AI content automation that prints money while you sleep",
-            "Freelance services turbocharged by AI (charge premium, deliver fast)",
-            "Digital products that AI helps you create once and sell forever",
-            "Information arbitrage using AI research and synthesis",
-            "AI-powered lead generation and outreach machines",
-            "Niche SaaS tools that solve painful problems",
-            "AI consulting for industries that don't know what hit them",
-            "Faceless content empires built on AI workflows",
-            "Automation services for small businesses (charge monthly)",
-            "AI-enhanced creative services (design, video, copy)"
+            "AI tools for an industry that's stuck in the 1990s (think: notaries, pawn shops, funeral homes)",
+            "Scraping + AI to find hidden opportunities (government contracts, expiring domains, underpriced assets)",
+            "Hyper-niche content empire nobody thought of (meditation for truck drivers, ASMR for studying, etc)",
+            "AI assistant for a specific profession (court reporters, home inspectors, appraisers, tattoo artists)",
+            "Automation-as-a-service for busy professionals (lawyers, doctors, real estate agents)",
+            "Digital products for weird hobbies (aquariums, bonsai, lock picking, ham radio)",
+            "AI-powered local business tools (menu optimization, review responses, appointment confirmations)",
+            "Data arbitrage plays (tracking price changes, monitoring competitors, alert systems)",
+            "Creator economy infrastructure (ghostwriting, clip generation, newsletter automation)",
+            "B2B tools for overlooked small businesses (escape rooms, dog groomers, music teachers)",
+            "AI tutoring for obscure certifications or exams (real estate license, food handler permits)",
+            "Personalized digital products (custom children's books, family recipe cookbooks, genealogy reports)",
+            "Discord/community monetization tools (premium bots, moderation systems, engagement analytics)",
+            "Professional report generators (inspection reports, appraisal docs, legal briefs)",
+            "Workflow automation for specific pain points (expense categorization, inbox management, scheduling)",
+            "AI tools for blue-collar businesses (plumbers, electricians, contractors - estimates, invoices)",
+            "Niche marketplace plays (connecting specific buyers/sellers nobody serves well)",
+            "AI-enhanced hobby communities (pattern generators, recipe scaling, project planners)",
+            "White-label AI solutions for agencies (chatbots, content, analytics they can resell)",
+            "Monitoring and alerting services (stock alerts, price drops, availability notifications)",
+            "AI tools for non-profits and churches (sermon transcription, donor management, event planning)",
+            "Pet industry automation (vet appointment reminders, pet food subscriptions, training schedules)",
+            "Real estate micro-tools (neighborhood reports, rental analysis, showing feedback collectors)",
+            "Event industry tools (wedding planning AI, conference scheduling, vendor matching)",
+            "Healthcare admin automation (appointment reminders, insurance verification, intake forms)",
+            "Education admin tools (parent communication, grade tracking, behavior reports)",
+            "Fitness and wellness niches (personalized meal plans, workout generators, habit trackers)",
+            "Senior care and eldertech (medication reminders, family updates, appointment scheduling)",
+            "Gig economy enhancers (delivery route optimization, earnings tracking, tax prep)",
+            "Artist and creative tools (commission management, portfolio generators, pricing calculators)"
         ]
         
         selected_theme = random.choice(idea_themes)
