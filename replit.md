@@ -119,9 +119,18 @@ The flash reel format features:
     "cta_text": "Copy the caption into Claude/ChatGPT to get started"
   },
   "fonts": {
+    "header": "Comico-Regular.ttf",
     "title": "Nippo-Bold.ttf",
     "numbers": "Orbitron-Bold.ttf",
-    "body": "Chillax-Variable.ttf"
+    "body": "Chillax-Variable.ttf",
+    "light": "Montserrat-Light.ttf"
+  },
+  "title_slide": {
+    "background": "dimmed random image from assets",
+    "header_format": "Daily Ai'Ds #N (Comico font, red)",
+    "title_format": "Build a [IDEA NAME] to make money by [income method]",
+    "earnings": "Set up once and make [amount/mo] easily!",
+    "tagline": "The hardest part is getting started..I just solved that - so give this a shot?"
   }
 }
 ```

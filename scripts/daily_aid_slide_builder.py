@@ -4,9 +4,10 @@ Renders carousel images for Daily Ai'ds Instagram posts.
 """
 
 import os
+import random
 from pathlib import Path
-from typing import Dict, List, Tuple
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from typing import Dict, List, Tuple, Optional
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 from scripts.logger import get_logger
 from scripts.utils import load_settings
 
@@ -39,6 +40,8 @@ class DailyAidSlideBuilder:
         title_font = 'assets/fonts/Nippo-Bold.ttf'
         number_font = 'assets/fonts/Orbitron-Bold.ttf'
         body_font = 'assets/fonts/Chillax-Variable.ttf'
+        display_font = 'assets/fonts/Comico-Regular.ttf'
+        light_font = 'assets/fonts/Montserrat-Light.ttf'
         
         try:
             self.font_title = ImageFont.truetype(title_font, 92)
@@ -51,6 +54,9 @@ class DailyAidSlideBuilder:
             self.font_header = ImageFont.truetype(title_font, 40)
             self.font_small = ImageFont.truetype(body_font, 32)
             self.font_cta = ImageFont.truetype(title_font, 68)
+            self.font_display_large = ImageFont.truetype(display_font, 85)
+            self.font_light = ImageFont.truetype(light_font, 34)
+            self.font_light_small = ImageFont.truetype(light_font, 28)
         except Exception as e:
             logger.warning(f"Failed to load custom fonts: {e}, using default")
             self.font_title = ImageFont.load_default()
@@ -63,6 +69,9 @@ class DailyAidSlideBuilder:
             self.font_header = ImageFont.load_default()
             self.font_small = ImageFont.load_default()
             self.font_cta = ImageFont.load_default()
+            self.font_display_large = ImageFont.load_default()
+            self.font_light = ImageFont.load_default()
+            self.font_light_small = ImageFont.load_default()
     
     def _hex_to_rgb(self, hex_color: str) -> Tuple[int, int, int]:
         """Convert hex color to RGB tuple."""
@@ -85,6 +94,49 @@ class DailyAidSlideBuilder:
         
         img = img.convert('RGBA')
         return Image.alpha_composite(img, overlay).convert('RGB')
+    
+    def _get_random_background_image(self) -> Optional[Path]:
+        """Get a random background image from assets."""
+        image_dirs = [
+            Path('assets/images/nature'),
+            Path('assets/images/sonder'),
+            Path('assets/images/warriors'),
+            Path('assets/images/temples'),
+        ]
+        
+        all_images = []
+        for dir_path in image_dirs:
+            if dir_path.exists():
+                images = list(dir_path.glob('*.png')) + list(dir_path.glob('*.jpg'))
+                images = [img for img in images if 'used' not in str(img)]
+                all_images.extend(images)
+        
+        if all_images:
+            return random.choice(all_images)
+        return None
+    
+    def _create_title_background(self) -> Image.Image:
+        """Create a trendy title slide background with dimmed image."""
+        bg_img = self._get_random_background_image()
+        
+        if bg_img and bg_img.exists():
+            try:
+                img = Image.open(bg_img).convert('RGB')
+                img = img.resize((self.width, self.height), Image.Resampling.LANCZOS)
+                enhancer = ImageEnhance.Brightness(img)
+                img = enhancer.enhance(0.25)
+                enhancer = ImageEnhance.Contrast(img)
+                img = enhancer.enhance(0.8)
+                img = img.filter(ImageFilter.GaussianBlur(radius=2))
+                overlay = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 180))
+                img = img.convert('RGBA')
+                img = Image.alpha_composite(img, overlay).convert('RGB')
+                
+                return img
+            except Exception as e:
+                logger.warning(f"Failed to load background image: {e}")
+        
+        return self._create_base_image()
     
     def _add_accent_elements(self, draw: ImageDraw.Draw, variant: str = 'default'):
         """Add decorative accent elements."""
@@ -138,83 +190,87 @@ class DailyAidSlideBuilder:
         draw.text(pos, text, font=font, fill=fill)
     
     def build_title_slide(self, idea: Dict) -> Path:
-        """Build the title slide (first carousel image) - trendy and enticing."""
-        img = self._create_base_image()
-        img = self._add_gradient_overlay(img)
+        """Build the title slide (first carousel image) - trendy and eye-catching."""
+        img = self._create_title_background()
         draw = ImageDraw.Draw(img)
         
-        self._add_accent_elements(draw, 'title')
-        
-        header_text = self.branding.get('header_text', 'DAILY AI\'DS')
+        accent_rgb = self._hex_to_rgb(self.accent_color)
         idea_number = idea.get('idea_number', 1)
         
-        accent_rgb = self._hex_to_rgb(self.accent_color)
+        draw.rectangle([(0, 0), (self.width, 6)], fill=accent_rgb)
+        draw.rectangle([(0, self.height - 6), (self.width, self.height)], fill=accent_rgb)
         
-        header_full = f"{header_text} #{idea_number}"
-        bbox = draw.textbbox((0, 0), header_full, font=self.font_subtitle)
+        header_text = f"Daily Ai'Ds #{idea_number}"
+        bbox = draw.textbbox((0, 0), header_text, font=self.font_display_large)
         header_width = bbox[2] - bbox[0]
         header_x = (self.width - header_width) // 2
-        self._draw_text_with_shadow(draw, (header_x, 40), header_full, self.font_subtitle, accent_rgb, shadow_offset=3)
+        self._draw_text_with_shadow(draw, (header_x, 50), header_text, self.font_display_large, accent_rgb, shadow_offset=4)
         
         title = idea.get('title', 'AI Money Idea')
         income_method = idea.get('income_method', 'automating tasks')
         
-        build_text = "BUILD AN"
-        bbox = draw.textbbox((0, 0), build_text, font=self.font_header)
+        build_text = "Build a"
+        bbox = draw.textbbox((0, 0), build_text, font=self.font_light)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, 130), build_text, font=self.font_header, fill=(180, 180, 180))
+        draw.text((x, 180), build_text, font=self.font_light, fill=(200, 200, 200))
         
         title_lines = self._wrap_text(title.upper(), self.font_title_large, self.width - 80)
-        y_offset = 190
+        y_offset = 230
         for line in title_lines:
             bbox = draw.textbbox((0, 0), line, font=self.font_title_large)
             line_width = bbox[2] - bbox[0]
             x = (self.width - line_width) // 2
-            self._draw_text_with_shadow(draw, (x, y_offset), line, self.font_title_large, accent_rgb, shadow_offset=5)
+            self._draw_text_with_shadow(draw, (x, y_offset), line, self.font_title_large, (255, 255, 255), shadow_offset=5)
             y_offset += 115
         
-        money_text = "TO MAKE MONEY BY"
-        bbox = draw.textbbox((0, 0), money_text, font=self.font_header)
-        x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, y_offset + 10), money_text, font=self.font_header, fill=(180, 180, 180))
-        y_offset += 60
+        y_offset += 30
         
-        method_lines = self._wrap_text(income_method.upper(), self.font_step_title, self.width - 100)
+        money_text = "to make money by"
+        bbox = draw.textbbox((0, 0), money_text, font=self.font_light)
+        x = (self.width - (bbox[2] - bbox[0])) // 2
+        draw.text((x, y_offset), money_text, font=self.font_light, fill=(180, 180, 180))
+        y_offset += 55
+        
+        method_lines = self._wrap_text(income_method.lower(), self.font_body_large, self.width - 120)
         for line in method_lines:
-            bbox = draw.textbbox((0, 0), line, font=self.font_step_title)
+            bbox = draw.textbbox((0, 0), line, font=self.font_body_large)
             line_width = bbox[2] - bbox[0]
             x = (self.width - line_width) // 2
-            self._draw_text_with_shadow(draw, (x, y_offset), line, self.font_step_title, (255, 255, 255), shadow_offset=3)
-            y_offset += 65
+            draw.text((x, y_offset), line, font=self.font_body_large, fill=accent_rgb)
+            y_offset += 55
         
-        draw.line([(100, y_offset + 25), (self.width - 100, y_offset + 25)], fill=accent_rgb, width=4)
+        y_offset += 40
+        draw.line([(150, y_offset), (self.width - 150, y_offset)], fill=(80, 80, 80), width=2)
         
         monthly_income = idea.get('monthly_income', idea.get('estimated_earnings', '$500-2000/mo'))
         if monthly_income:
-            earnings_text = f"Set up once and make {monthly_income} easily!"
-            earnings_lines = self._wrap_text(earnings_text, self.font_body_large, self.width - 100)
-            y_earnings = self.height - 380
-            for line in earnings_lines:
-                bbox = draw.textbbox((0, 0), line, font=self.font_body_large)
-                x = (self.width - (bbox[2] - bbox[0])) // 2
-                self._draw_text_with_shadow(draw, (x, y_earnings), line, self.font_body_large, (255, 255, 255), shadow_offset=2)
-                y_earnings += 55
+            earnings_line1 = "Set up once and make"
+            earnings_line2 = f"{monthly_income} easily!"
+            
+            y_earnings = self.height - 420
+            bbox = draw.textbbox((0, 0), earnings_line1, font=self.font_light)
+            x = (self.width - (bbox[2] - bbox[0])) // 2
+            draw.text((x, y_earnings), earnings_line1, font=self.font_light, fill=(200, 200, 200))
+            
+            bbox = draw.textbbox((0, 0), earnings_line2, font=self.font_step_title)
+            x = (self.width - (bbox[2] - bbox[0])) // 2
+            self._draw_text_with_shadow(draw, (x, y_earnings + 50), earnings_line2, self.font_step_title, (255, 255, 255), shadow_offset=3)
         
         tagline = "The hardest part is getting started.."
         tagline2 = "I just solved that - so give this a shot?"
         
-        bbox = draw.textbbox((0, 0), tagline, font=self.font_body)
+        bbox = draw.textbbox((0, 0), tagline, font=self.font_light_small)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 200), tagline, font=self.font_body, fill=(160, 160, 160))
+        draw.text((x, self.height - 180), tagline, font=self.font_light_small, fill=(140, 140, 140))
         
-        bbox = draw.textbbox((0, 0), tagline2, font=self.font_body)
+        bbox = draw.textbbox((0, 0), tagline2, font=self.font_light_small)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 155), tagline2, font=self.font_body, fill=(160, 160, 160))
+        draw.text((x, self.height - 145), tagline2, font=self.font_light_small, fill=(140, 140, 140))
         
         watermark = self.branding.get('watermark', '@techiavelli')
         bbox = draw.textbbox((0, 0), watermark, font=self.font_small)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 65), watermark, font=self.font_small, fill=(120, 120, 120))
+        draw.text((x, self.height - 70), watermark, font=self.font_small, fill=(100, 100, 100))
         
         output_path = self.output_dir / f"slide_00_title.png"
         img.save(output_path, 'PNG', quality=95)
