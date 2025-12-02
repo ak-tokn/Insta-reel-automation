@@ -246,57 +246,74 @@ class DailyAidSlideBuilder:
         header_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 95)
         bbox = draw.textbbox((0, 0), header_text, font=header_font)
         header_x = (self.width - (bbox[2] - bbox[0])) // 2
+        header_height = bbox[3] - bbox[1]
         self._draw_text_with_shadow(draw, (header_x, 25), header_text, header_font, accent_rgb, shadow_offset=4)
         
         title = idea.get('title', 'AI Money Idea')
         income_method = idea.get('income_method', 'automating tasks')
         monthly_income = idea.get('monthly_income', idea.get('estimated_earnings', '$500-2000/mo'))
         
-        content_start_y = 200
-        
         label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 40)
+        title_font = self._get_dynamic_font(title.upper(), 'assets/fonts/Stardom-Regular.ttf', max_text_width, 120, 65)
+        title_lines = self._wrap_text(title.upper(), title_font, max_text_width)
+        earnings_label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 36)
+        amount_font = ImageFont.truetype('assets/fonts/Montserrat-Bold.ttf', 68)
+        method_font = self._get_dynamic_font(income_method.lower(), 'assets/fonts/Montserrat-Bold.ttf', max_text_width, 44, 30)
+        method_lines = self._wrap_text(income_method.lower(), method_font, max_text_width)
+        
+        label_bbox = draw.textbbox((0, 0), "Easy Prompting Idea:", font=label_font)
+        label_h = label_bbox[3] - label_bbox[1]
+        title_bbox = draw.textbbox((0, 0), "Ag", font=title_font)
+        title_line_h = title_bbox[3] - title_bbox[1] + 18
+        title_block_h = title_line_h * len(title_lines)
+        earnings_label_bbox = draw.textbbox((0, 0), "set up in hours and make up to", font=earnings_label_font)
+        earnings_label_h = earnings_label_bbox[3] - earnings_label_bbox[1]
+        amount_bbox = draw.textbbox((0, 0), monthly_income, font=amount_font)
+        amount_h = amount_bbox[3] - amount_bbox[1]
+        method_bbox = draw.textbbox((0, 0), "Ag", font=method_font)
+        method_line_h = method_bbox[3] - method_bbox[1] + 10
+        method_block_h = method_line_h * len(method_lines)
+        
+        total_content_h = label_h + 20 + title_block_h + 40 + earnings_label_h + 15 + amount_h + 35 + method_block_h
+        
+        header_bottom = 25 + header_height + 40
+        footer_top = self.height - 180
+        available_space = footer_top - header_bottom
+        content_start_y = header_bottom + (available_space - total_content_h) // 2
+        
         label_text = "Easy Prompting Idea:"
         bbox = draw.textbbox((0, 0), label_text, font=label_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
         draw.text((x, content_start_y), label_text, font=label_font, fill=(160, 160, 160))
         
-        title_font = self._get_dynamic_font(title.upper(), 'assets/fonts/Stardom-Regular.ttf', max_text_width, 120, 65)
-        title_lines = self._wrap_text(title.upper(), title_font, max_text_width)
-        bbox = draw.textbbox((0, 0), "Ag", font=title_font)
-        line_height = bbox[3] - bbox[1] + 18
-        
-        title_y = content_start_y + 60
+        title_y = content_start_y + label_h + 20
         for line in title_lines:
             bbox = draw.textbbox((0, 0), line, font=title_font)
             line_width = bbox[2] - bbox[0]
             x = (self.width - line_width) // 2
             self._draw_text_with_shadow(draw, (x, title_y), line, title_font, (255, 255, 255), shadow_offset=5)
-            title_y += line_height
+            title_y += title_line_h
         
-        earnings_y = title_y + 50
+        earnings_y = title_y + 40
         
-        earnings_label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 36)
         earnings_label = "set up in hours and make up to"
         bbox = draw.textbbox((0, 0), earnings_label, font=earnings_label_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
         draw.text((x, earnings_y), earnings_label, font=earnings_label_font, fill=(170, 170, 170))
         
-        earnings_y += 55
-        amount_font = ImageFont.truetype('assets/fonts/Nippo-Bold.ttf', 72)
+        earnings_y += earnings_label_h + 15
         bbox = draw.textbbox((0, 0), monthly_income, font=amount_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
         self._draw_text_with_shadow(draw, (x, earnings_y), monthly_income, amount_font, green_rgb, shadow_offset=3)
         
-        earnings_y += 100
+        earnings_y += amount_h + 35
         
-        method_font = self._get_dynamic_font(income_method.lower(), 'assets/fonts/Nippo-Bold.ttf', max_text_width, 48, 32)
-        method_lines = self._wrap_text(income_method.lower(), method_font, max_text_width)
         for line in method_lines:
             bbox = draw.textbbox((0, 0), line, font=method_font)
             line_width = bbox[2] - bbox[0]
             x = (self.width - line_width) // 2
             self._draw_text_with_shadow(draw, (x, earnings_y), line, method_font, accent_rgb, shadow_offset=2)
-            earnings_y += 58
+            earnings_y += method_line_h
         
         tagline_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 30)
         tagline = "The hardest part is getting started.."
