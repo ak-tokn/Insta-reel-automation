@@ -184,7 +184,7 @@ OUTPUT FORMAT (JSON):
             "number": 1,
             "title": "Short phase title (3-6 words)",
             "description": "IMPLEMENTATION PHASE - What to actually BUILD. Include specific tech: frameworks, APIs, databases, tools. Example: 'Create a Next.js app with Supabase for user auth. Set up Stripe for payments using their npm package. Deploy on Vercel.'",
-            "ai_can_do_it": true or false - Set to TRUE if this entire step can be done by Claude/ChatGPT with MCPs or plugins (e.g., setting up environments, scaffolding projects, installing dependencies, creating boilerplate code, setting up integrations). Set to FALSE if it requires human decisions, creative input, or external actions.",
+            "ai_can_do_it": true or false - Set to TRUE for ANY coding/development task that AI can write and execute. This includes: setting up projects, writing APIs, building pipelines, creating dashboards, writing automation scripts, setting up databases, building content generators, integrating APIs, writing scrapers, creating email systems, building payment flows, etc. Basically ANY step where the output is CODE that AI can write. Set to FALSE ONLY for: manual outreach, sales calls, creating accounts on platforms, customer acquisition, negotiating deals, or tasks requiring human relationships.",
             "extra_credit": "Optional - only include if there's an MCP, plugin, or automation that could help. Example: 'Use Replit Agent to scaffold the entire project in minutes' or 'Connect Zapier to auto-post to social media'"
         }}
     ],
