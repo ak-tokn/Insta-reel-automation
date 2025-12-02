@@ -153,6 +153,14 @@ UNCONVENTIONAL THINKING:
 
 Avoid: Dropshipping, generic courses, crypto/NFT, high capital requirements, MLM, obvious ideas everyone has seen.
 
+TECHNOLOGY CURRENCY:
+Always use CURRENT technology. Never reference outdated solutions:
+- Use "GPT-4o" or "Claude 3.5" NOT "GPT-3" or "GPT-3.5"
+- Use "gpt-4o-mini" for cost-effective options, NOT older models
+- Use current frameworks (Next.js 14, React 18, etc.)
+- Reference current APIs and pricing (as of 2024-2025)
+- If mentioning specific tools, use their latest versions
+
 Always respond in valid JSON format."""
 
     def _build_generation_prompt(self, idea_number: int) -> str:
