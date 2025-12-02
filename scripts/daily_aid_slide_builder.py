@@ -60,11 +60,12 @@ class DailyAidSlideBuilder:
             self.font_display_xl = ImageFont.truetype(display_font, 110)
             self.font_light = ImageFont.truetype(light_font, 34)
             self.font_light_small = ImageFont.truetype(light_font, 28)
-            self.font_stardom_large = ImageFont.truetype(stardom_font, 90)
-            self.font_stardom_medium = ImageFont.truetype(stardom_font, 32)
-            self.font_montserrat_400 = ImageFont.truetype(montserrat_font, 36)
-            self.font_montserrat_400_medium = ImageFont.truetype(montserrat_font, 32)
-            self.font_montserrat_500 = ImageFont.truetype(montserrat_font, 42)
+            self.font_stardom_large = ImageFont.truetype(stardom_font, 105)
+            self.font_stardom_medium = ImageFont.truetype(stardom_font, 36)
+            self.font_montserrat_400 = ImageFont.truetype(montserrat_font, 44)
+            self.font_montserrat_400_medium = ImageFont.truetype(montserrat_font, 38)
+            self.font_montserrat_500 = ImageFont.truetype(montserrat_font, 50)
+            self.font_step_header_light = ImageFont.truetype(light_font, 58)
         except Exception as e:
             logger.warning(f"Failed to load custom fonts: {e}, using default")
             self.font_title = ImageFont.load_default()
@@ -86,6 +87,7 @@ class DailyAidSlideBuilder:
             self.font_montserrat_400 = ImageFont.load_default()
             self.font_montserrat_400_medium = ImageFont.load_default()
             self.font_montserrat_500 = ImageFont.load_default()
+            self.font_step_header_light = ImageFont.load_default()
     
     def _hex_to_rgb(self, hex_color: str) -> Tuple[int, int, int]:
         """Convert hex color to RGB tuple."""
@@ -309,12 +311,12 @@ class DailyAidSlideBuilder:
         draw.text((70, 280), progress_text, font=self.font_header, fill=(120, 120, 120))
         
         step_title = step.get('title', f'Step {step_num}')
-        title_lines = self._wrap_text(step_title.upper(), self.font_step_title, self.width - 140)
+        title_lines = self._wrap_text(step_title.upper(), self.font_step_header_light, self.width - 140)
         
         y_offset = 380
         for line in title_lines:
-            self._draw_text_with_shadow(draw, (70, y_offset), line, self.font_step_title, (255, 255, 255), shadow_offset=3)
-            y_offset += 70
+            draw.text((70, y_offset), line, font=self.font_step_header_light, fill=(255, 255, 255))
+            y_offset += 75
         
         y_offset += 30
         draw.line([(70, y_offset), (self.width - 70, y_offset)], fill=accent_rgb, width=3)

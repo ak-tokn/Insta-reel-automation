@@ -143,9 +143,9 @@ Create a sophisticated, grey-hat, money-making idea that uses AI and online tool
 
 OUTPUT FORMAT (JSON):
 {{
-    "title": "Short catchy name 2-4 words (e.g., 'AI Ghostwriter Empire', 'LinkedIn Scrape Stack', 'Thumbnail Cash Machine')",
+    "title": "DESCRIPTIVE action-based title that clearly explains what you're building and selling. NOT vague or cheesy marketing speak. Examples of GOOD titles: 'Selling AI-Made Resume Templates', 'Offering AI Video Editing Services', 'Building Custom ChatGPT Bots for Businesses'. Examples of BAD titles: 'Template Empire', 'Cash Machine', 'Money Printer', 'Digital Goldmine'. The title should tell someone EXACTLY what they will be doing.",
     
-    "income_method": "Short phrase describing HOW the money is made (e.g., 'selling automated content', 'charging monthly retainers', 'flipping AI-generated designs'). This completes the sentence 'make money by [income_method]'",
+    "income_method": "Short phrase describing HOW the money is made (e.g., 'selling templates on Etsy', 'charging $500/month per client', 'flipping designs on Creative Market'). Be specific about WHERE the money comes from.",
     
     "summary": "One compelling sentence (under 20 words) that makes this sound irresistible. Hook them.",
     
@@ -155,7 +155,7 @@ OUTPUT FORMAT (JSON):
         {{
             "number": 1,
             "title": "Short step title (3-5 words)",
-            "description": "Clear, actionable description of this step (1-2 sentences). Mention specific tools when relevant."
+            "description": "SPECIFIC and ACTIONABLE. Name exact tools (e.g., 'Open Canva.com and use their resume template section', 'Go to Upwork.com and create a profile'). Make it sound EASY and MOTIVATING. Avoid vague phrases like 'research trends' or 'identify your niche' - instead say exactly HOW to do it with specific tools and websites."
         }},
         // ... 5-8 more steps
     ],
@@ -171,14 +171,12 @@ OUTPUT FORMAT (JSON):
     "kickoff_prompt": "A detailed prompt (150-300 words) that someone can paste into ChatGPT or Claude to get started on implementing this idea. This should be specific and actionable - helping them research, plan, or create the first deliverable. Include what to ask the AI to do step-by-step."
 }}
 
-QUALITY CHECKLIST:
-□ Title sounds like a cheat code, not a textbook
-□ Summary creates FOMO - they need to know more
-□ Each step is specific and actionable with real tools mentioned
-□ Steps flow logically from setup to revenue
-□ Kickoff prompt is genuinely useful - not generic
-□ The whole thing feels slightly transgressive but totally legal
-□ Someone could actually do this starting tomorrow
+CRITICAL RULES:
+1. TITLE must clearly describe what they're DOING and SELLING - no vague buzzwords
+2. STEPS must mention SPECIFIC websites and tools by name (Canva, Fiverr, Gumroad, Notion, etc.)
+3. STEPS should sound EASY and EXCITING - not like homework
+4. Never use phrases like "research your niche" or "identify trends" without explaining HOW
+5. Each step should feel like "oh that's simple, I can do that right now"
 
 Generate now:"""
 
