@@ -255,11 +255,11 @@ class DailyAidSlideBuilder:
         monthly_income = idea.get('monthly_income', idea.get('estimated_earnings', '$500-2000/mo'))
         
         label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 40)
-        title_font = ImageFont.truetype('assets/fonts/Paquito-Variable.ttf', 95)
+        title_font = ImageFont.truetype('assets/fonts/Nippo-Bold.ttf', 95)
         title_lines = self._wrap_text(title.upper(), title_font, max_text_width)
         earnings_label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 36)
         amount_font = ImageFont.truetype('assets/fonts/Stardom-Regular.ttf', 68)
-        method_font = self._get_dynamic_font(income_method.lower(), 'assets/fonts/Montserrat-Light.ttf', max_text_width, 38, 28)
+        method_font = self._get_dynamic_font(income_method.lower(), 'assets/fonts/Montserrat-Light.ttf', max_text_width, 46, 32)
         method_lines = self._wrap_text(income_method.lower(), method_font, max_text_width)
         
         label_bbox = draw.textbbox((0, 0), "Easy Prompting Idea:", font=label_font)
