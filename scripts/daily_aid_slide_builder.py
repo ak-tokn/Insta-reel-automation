@@ -28,8 +28,9 @@ class DailyAidSlideBuilder:
         self.accent_color = self.carousel_config.get('accent_color', '#00FF88')
         self.secondary_color = self.carousel_config.get('secondary_color', '#FF6B35')
         
-        self.output_dir = Path('output/daily_aids/slides')
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.base_output_dir = Path('output/daily_aids')
+        self.base_output_dir.mkdir(parents=True, exist_ok=True)
+        self.output_dir = None
         
         self._load_fonts()
     
@@ -315,9 +316,26 @@ class DailyAidSlideBuilder:
         logger.info(f"Created CTA slide: {output_path}")
         return output_path
     
-    def build_all_slides(self, idea: Dict) -> List[Path]:
-        """Build all carousel slides for an idea."""
+    def build_all_slides(self, idea: Dict, is_preview: bool = False) -> List[Path]:
+        """Build all carousel slides for an idea.
+        
+        Args:
+            idea: The idea dictionary with title, steps, etc.
+            is_preview: If True, saves to 'preview' folder instead of numbered post folder
+            
+        Returns:
+            List of paths to generated slide images
+        """
         slides = []
+        
+        idea_number = idea.get('idea_number', 1)
+        
+        if is_preview:
+            self.output_dir = self.base_output_dir / 'preview'
+        else:
+            self.output_dir = self.base_output_dir / f'post_{idea_number}'
+        
+        self.output_dir.mkdir(parents=True, exist_ok=True)
         
         for f in self.output_dir.glob('slide_*.png'):
             f.unlink()
@@ -332,7 +350,7 @@ class DailyAidSlideBuilder:
         
         slides.append(self.build_cta_slide(idea))
         
-        logger.info(f"Built {len(slides)} slides for Daily Ai'ds #{idea.get('idea_number', '?')}")
+        logger.info(f"Built {len(slides)} slides for Daily Ai'ds #{idea_number} in {self.output_dir}")
         return slides
 
 

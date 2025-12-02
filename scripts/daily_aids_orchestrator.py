@@ -150,8 +150,31 @@ class DailyAidsOrchestrator:
             logger.error(f"Failed to generate idea: {e}")
             return {'success': False, 'error': f"Idea generation failed: {e}"}
         
+        if dry_run:
+            try:
+                slides = self.slide_builder.build_all_slides(idea, is_preview=True)
+                logger.info(f"Built {len(slides)} preview slides")
+            except Exception as e:
+                logger.error(f"Failed to build slides: {e}")
+                return {'success': False, 'error': f"Slide building failed: {e}"}
+            
+            caption = self._build_caption(idea)
+            logger.info(f"Caption length: {len(caption)} chars")
+            
+            logger.info("DRY RUN - Skipping Instagram post")
+            logger.info("Preview slides saved to: output/daily_aids/preview/")
+            return {
+                'success': True,
+                'dry_run': True,
+                'idea_number': next_number,
+                'idea': idea,
+                'slides': [str(s) for s in slides],
+                'caption': caption,
+                'preview_folder': 'output/daily_aids/preview/'
+            }
+        
         try:
-            slides = self.slide_builder.build_all_slides(idea)
+            slides = self.slide_builder.build_all_slides(idea, is_preview=False)
             logger.info(f"Built {len(slides)} slides")
         except Exception as e:
             logger.error(f"Failed to build slides: {e}")
@@ -159,17 +182,6 @@ class DailyAidsOrchestrator:
         
         caption = self._build_caption(idea)
         logger.info(f"Caption length: {len(caption)} chars")
-        
-        if dry_run:
-            logger.info("DRY RUN - Skipping Instagram post")
-            return {
-                'success': True,
-                'dry_run': True,
-                'idea_number': next_number,
-                'idea': idea,
-                'slides': [str(s) for s in slides],
-                'caption': caption
-            }
         
         try:
             result = self.instagram_client.post_carousel(slides, caption)
@@ -182,6 +194,7 @@ class DailyAidsOrchestrator:
         
         logger.info("=" * 50)
         logger.info(f"Daily Ai'ds #{next_number} completed successfully!")
+        logger.info(f"Slides saved to: output/daily_aids/post_{next_number}/")
         logger.info("=" * 50)
         
         return {
@@ -191,7 +204,8 @@ class DailyAidsOrchestrator:
             'slides': [str(s) for s in slides],
             'caption': caption,
             'post_id': result.get('post_id'),
-            'instagram_result': result
+            'instagram_result': result,
+            'slides_folder': f'output/daily_aids/post_{next_number}/'
         }
 
 
