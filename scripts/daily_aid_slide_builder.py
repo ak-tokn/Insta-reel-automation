@@ -247,8 +247,8 @@ class DailyAidSlideBuilder:
         left_margin = 60
         max_text_width = self.width - (left_margin * 2)
         
-        header_text = f"Daily Ai'Ds #{idea_number}"
-        header_font = ImageFont.truetype('assets/fonts/Zina-Regular.ttf', 95)
+        header_text = f"Daily Ai'ds #{idea_number}"
+        header_font = ImageFont.truetype('assets/fonts/Array-Wide.ttf', 95)
         bbox = draw.textbbox((0, 0), header_text, font=header_font)
         header_x = (self.width - (bbox[2] - bbox[0])) // 2
         header_height = bbox[3] - bbox[1]
@@ -259,10 +259,10 @@ class DailyAidSlideBuilder:
         monthly_income = idea.get('monthly_income', idea.get('estimated_earnings', '$500-2000/mo'))
         
         label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 40)
-        title_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 95)
+        title_font = ImageFont.truetype('assets/fonts/Britney-Variable.ttf', 95)
         title_lines = self._wrap_text(title.upper(), title_font, max_text_width)
         earnings_label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 36)
-        amount_font = ImageFont.truetype('assets/fonts/Stardom-Regular.ttf', 68)
+        amount_font = ImageFont.truetype('assets/fonts/Zina-Regular.ttf', 68)
         method_font = self._get_dynamic_font(income_method.lower(), 'assets/fonts/Montserrat-Light.ttf', max_text_width, 46, 32)
         method_lines = self._wrap_text(income_method.lower(), method_font, max_text_width)
         
@@ -344,7 +344,7 @@ class DailyAidSlideBuilder:
         padding = 70
         max_text_width = self.width - (padding * 2)
         
-        number_font = ImageFont.truetype('assets/fonts/Zina-Regular.ttf', 180)
+        number_font = ImageFont.truetype('assets/fonts/Array-Wide.ttf', 180)
         self._draw_text_with_shadow(draw, (padding, 60), step_num, number_font, accent_rgb, shadow_offset=5)
         
         progress_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 36)
@@ -352,7 +352,7 @@ class DailyAidSlideBuilder:
         draw.text((padding, 250), progress_text, font=progress_font, fill=(120, 120, 120))
         
         step_title = step.get('title', f'Step {step_num}')
-        title_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 80)
+        title_font = ImageFont.truetype('assets/fonts/Britney-Variable.ttf', 80)
         title_lines = self._wrap_text(step_title.upper(), title_font, max_text_width)
         
         bbox = draw.textbbox((0, 0), "Ag", font=title_font)
@@ -413,7 +413,7 @@ class DailyAidSlideBuilder:
         draw.text((x, 220), cta_label, font=label_font, fill=(160, 160, 160))
         
         cta_main = "CHATGPT OR CLAUDE"
-        main_font = self._get_dynamic_font(cta_main, 'assets/fonts/Stardom-Regular.ttf', max_text_width, 90, 50)
+        main_font = self._get_dynamic_font(cta_main, 'assets/fonts/Britney-Variable.ttf', max_text_width, 90, 50)
         bbox = draw.textbbox((0, 0), cta_main, font=main_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
         self._draw_text_with_shadow(draw, (x, 290), cta_main, main_font, (255, 255, 255), shadow_offset=4)
@@ -437,14 +437,14 @@ class DailyAidSlideBuilder:
         
         tools = idea.get('tools_mentioned', [])
         if tools:
-            tools_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 32)
+            tools_font = ImageFont.truetype('assets/fonts/Montserrat-Bold.ttf', 32)
             tools_text = "Tools: " + ", ".join(tools[:5])
             tools_lines = self._wrap_text(tools_text, tools_font, max_text_width)
             y_tools = self.height - 160
             for line in tools_lines:
                 bbox = draw.textbbox((0, 0), line, font=tools_font)
                 x = (self.width - (bbox[2] - bbox[0])) // 2
-                draw.text((x, y_tools), line, font=tools_font, fill=(120, 120, 120))
+                draw.text((x, y_tools), line, font=tools_font, fill=accent_rgb)
                 y_tools += 42
         
         watermark = self.branding.get('watermark', '@techiavelli')
