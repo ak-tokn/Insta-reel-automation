@@ -228,7 +228,7 @@ class DailyAidSlideBuilder:
         return total_height
 
     def build_title_slide(self, idea: Dict) -> Path:
-        """Build the title slide with large, impactful content filling the page."""
+        """Build the title slide with the specified layout."""
         img = self._create_title_background()
         draw = ImageDraw.Draw(img)
         
@@ -252,18 +252,20 @@ class DailyAidSlideBuilder:
         income_method = idea.get('income_method', 'automating tasks')
         monthly_income = idea.get('monthly_income', idea.get('estimated_earnings', '$500-2000/mo'))
         
+        content_start_y = 250
+        
         label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 38)
         label_text = "Easy Prompting Idea:"
         bbox = draw.textbbox((0, 0), label_text, font=label_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, 160), label_text, font=label_font, fill=(160, 160, 160))
+        draw.text((x, content_start_y), label_text, font=label_font, fill=(160, 160, 160))
         
-        title_font = self._get_dynamic_font(title.upper(), 'assets/fonts/Stardom-Regular.ttf', max_text_width, 95, 55)
+        title_font = self._get_dynamic_font(title.upper(), 'assets/fonts/Stardom-Regular.ttf', max_text_width, 90, 50)
         title_lines = self._wrap_text(title.upper(), title_font, max_text_width)
         bbox = draw.textbbox((0, 0), "Ag", font=title_font)
         line_height = bbox[3] - bbox[1] + 15
         
-        title_y = 220
+        title_y = content_start_y + 55
         for line in title_lines:
             bbox = draw.textbbox((0, 0), line, font=title_font)
             line_width = bbox[2] - bbox[0]
@@ -271,35 +273,31 @@ class DailyAidSlideBuilder:
             self._draw_text_with_shadow(draw, (x, title_y), line, title_font, (255, 255, 255), shadow_offset=4)
             title_y += line_height
         
-        method_y = title_y + 50
+        earnings_y = title_y + 60
         
-        money_label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 36)
-        money_text = "make money by"
-        bbox = draw.textbbox((0, 0), money_text, font=money_label_font)
+        earnings_label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 34)
+        earnings_label = "set up in hours and make up to"
+        bbox = draw.textbbox((0, 0), earnings_label, font=earnings_label_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, method_y), money_text, font=money_label_font, fill=(150, 150, 150))
+        draw.text((x, earnings_y), earnings_label, font=earnings_label_font, fill=(170, 170, 170))
         
-        method_y += 50
-        method_font = self._get_dynamic_font(income_method.lower(), 'assets/fonts/Montserrat-Light.ttf', max_text_width, 44, 28)
-        method_lines = self._wrap_text(income_method.lower(), method_font, max_text_width)
-        for line in method_lines:
-            bbox = draw.textbbox((0, 0), line, font=method_font)
+        earnings_y += 50
+        amount_text = f"{monthly_income} per month"
+        amount_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 52)
+        bbox = draw.textbbox((0, 0), amount_text, font=amount_font)
+        x = (self.width - (bbox[2] - bbox[0])) // 2
+        draw.text((x, earnings_y), amount_text, font=amount_font, fill=green_rgb)
+        
+        earnings_y += 70
+        by_text = f"by {income_method.lower()}"
+        by_font = self._get_dynamic_font(by_text, 'assets/fonts/Montserrat-Light.ttf', max_text_width, 38, 26)
+        by_lines = self._wrap_text(by_text, by_font, max_text_width)
+        for line in by_lines:
+            bbox = draw.textbbox((0, 0), line, font=by_font)
             line_width = bbox[2] - bbox[0]
             x = (self.width - line_width) // 2
-            draw.text((x, method_y), line, font=method_font, fill=accent_rgb)
-            method_y += 52
-        
-        if monthly_income:
-            earnings_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 32)
-            earnings_text = "set up in hours and make up to"
-            bbox = draw.textbbox((0, 0), earnings_text, font=earnings_font)
-            x = (self.width - (bbox[2] - bbox[0])) // 2
-            draw.text((x, self.height - 280), earnings_text, font=earnings_font, fill=(170, 170, 170))
-            
-            income_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 52)
-            bbox = draw.textbbox((0, 0), monthly_income, font=income_font)
-            x = (self.width - (bbox[2] - bbox[0])) // 2
-            draw.text((x, self.height - 235), monthly_income, font=income_font, fill=green_rgb)
+            draw.text((x, earnings_y), line, font=by_font, fill=accent_rgb)
+            earnings_y += 48
         
         tagline_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 30)
         tagline = "The hardest part is getting started.."
