@@ -228,7 +228,7 @@ class DailyAidSlideBuilder:
         return total_height
 
     def build_title_slide(self, idea: Dict) -> Path:
-        """Build the title slide with dynamic sizing to fit all content."""
+        """Build the title slide with large, impactful content filling the page."""
         img = self._create_title_background()
         draw = ImageDraw.Draw(img)
         
@@ -239,94 +239,85 @@ class DailyAidSlideBuilder:
         draw.rectangle([(0, 0), (self.width, 6)], fill=accent_rgb)
         draw.rectangle([(0, self.height - 6), (self.width, self.height)], fill=accent_rgb)
         
-        padding = 60
+        padding = 50
         max_text_width = self.width - (padding * 2)
         
         header_text = f"Daily Ai'Ds #{idea_number}"
-        header_font = self._get_dynamic_font(header_text, 'assets/fonts/Comico-Regular.ttf', max_text_width, 100, 60)
+        header_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 95)
         bbox = draw.textbbox((0, 0), header_text, font=header_font)
         header_x = (self.width - (bbox[2] - bbox[0])) // 2
-        self._draw_text_with_shadow(draw, (header_x, 30), header_text, header_font, accent_rgb, shadow_offset=4)
-        header_height = bbox[3] - bbox[1]
+        self._draw_text_with_shadow(draw, (header_x, 25), header_text, header_font, accent_rgb, shadow_offset=4)
         
         title = idea.get('title', 'AI Money Idea')
         income_method = idea.get('income_method', 'automating tasks')
         monthly_income = idea.get('monthly_income', idea.get('estimated_earnings', '$500-2000/mo'))
         
-        title_font = self._get_dynamic_font(title.upper(), 'assets/fonts/Stardom-Regular.ttf', max_text_width, 85, 45)
-        
-        fixed_bottom_height = 200
-        available_middle = self.height - (30 + header_height + 80) - fixed_bottom_height
-        
-        content_start_y = 30 + header_height + 80
-        
-        label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 32)
+        label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 38)
         label_text = "Easy Prompting Idea:"
         bbox = draw.textbbox((0, 0), label_text, font=label_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, content_start_y), label_text, font=label_font, fill=(160, 160, 160))
+        draw.text((x, 160), label_text, font=label_font, fill=(160, 160, 160))
         
-        title_y = content_start_y + 50
+        title_font = self._get_dynamic_font(title.upper(), 'assets/fonts/Stardom-Regular.ttf', max_text_width, 95, 55)
         title_lines = self._wrap_text(title.upper(), title_font, max_text_width)
         bbox = draw.textbbox((0, 0), "Ag", font=title_font)
-        line_height = bbox[3] - bbox[1] + 12
+        line_height = bbox[3] - bbox[1] + 15
         
+        title_y = 220
         for line in title_lines:
             bbox = draw.textbbox((0, 0), line, font=title_font)
             line_width = bbox[2] - bbox[0]
             x = (self.width - line_width) // 2
-            self._draw_text_with_shadow(draw, (x, title_y), line, title_font, (255, 255, 255), shadow_offset=3)
+            self._draw_text_with_shadow(draw, (x, title_y), line, title_font, (255, 255, 255), shadow_offset=4)
             title_y += line_height
         
-        method_y = title_y + 40
+        method_y = title_y + 50
         
-        money_label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 28)
+        money_label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 36)
         money_text = "make money by"
         bbox = draw.textbbox((0, 0), money_text, font=money_label_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
         draw.text((x, method_y), money_text, font=money_label_font, fill=(150, 150, 150))
         
-        method_y += 38
-        method_font = self._get_dynamic_font(income_method.lower(), 'assets/fonts/Montserrat-Light.ttf', max_text_width, 38, 24)
+        method_y += 50
+        method_font = self._get_dynamic_font(income_method.lower(), 'assets/fonts/Montserrat-Light.ttf', max_text_width, 44, 28)
         method_lines = self._wrap_text(income_method.lower(), method_font, max_text_width)
         for line in method_lines:
             bbox = draw.textbbox((0, 0), line, font=method_font)
             line_width = bbox[2] - bbox[0]
             x = (self.width - line_width) // 2
             draw.text((x, method_y), line, font=method_font, fill=accent_rgb)
-            method_y += 42
-        
-        bottom_section_y = self.height - fixed_bottom_height
+            method_y += 52
         
         if monthly_income:
-            earnings_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 26)
+            earnings_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 32)
             earnings_text = "set up in hours and make up to"
             bbox = draw.textbbox((0, 0), earnings_text, font=earnings_font)
             x = (self.width - (bbox[2] - bbox[0])) // 2
-            draw.text((x, bottom_section_y), earnings_text, font=earnings_font, fill=(170, 170, 170))
+            draw.text((x, self.height - 280), earnings_text, font=earnings_font, fill=(170, 170, 170))
             
-            income_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 36)
+            income_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 52)
             bbox = draw.textbbox((0, 0), monthly_income, font=income_font)
             x = (self.width - (bbox[2] - bbox[0])) // 2
-            draw.text((x, bottom_section_y + 35), monthly_income, font=income_font, fill=green_rgb)
+            draw.text((x, self.height - 235), monthly_income, font=income_font, fill=green_rgb)
         
-        tagline_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 26)
+        tagline_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 30)
         tagline = "The hardest part is getting started.."
         tagline2 = "I just solved that - so give this a shot?"
         
         bbox = draw.textbbox((0, 0), tagline, font=tagline_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 115), tagline, font=tagline_font, fill=accent_rgb)
+        draw.text((x, self.height - 150), tagline, font=tagline_font, fill=accent_rgb)
         
         bbox = draw.textbbox((0, 0), tagline2, font=tagline_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 80), tagline2, font=tagline_font, fill=accent_rgb)
+        draw.text((x, self.height - 110), tagline2, font=tagline_font, fill=accent_rgb)
         
         watermark = self.branding.get('watermark', '@techiavelli')
-        watermark_font = ImageFont.truetype('assets/fonts/Stardom-Regular.ttf', 28)
+        watermark_font = ImageFont.truetype('assets/fonts/Stardom-Regular.ttf', 32)
         bbox = draw.textbbox((0, 0), watermark, font=watermark_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 45), watermark, font=watermark_font, fill=(120, 120, 120))
+        draw.text((x, self.height - 60), watermark, font=watermark_font, fill=(120, 120, 120))
         
         output_path = self.output_dir / f"slide_00_title.png"
         img.save(output_path, 'PNG', quality=95)
@@ -334,7 +325,7 @@ class DailyAidSlideBuilder:
         return output_path
     
     def build_step_slide(self, step: Dict, step_index: int, total_steps: int) -> Path:
-        """Build a step slide."""
+        """Build a step slide with Stardom headers and Montserrat body."""
         img = self._create_base_image()
         img = self._add_gradient_overlay(img)
         draw = ImageDraw.Draw(img)
@@ -343,35 +334,45 @@ class DailyAidSlideBuilder:
         
         accent_rgb = self._hex_to_rgb(self.accent_color)
         step_num = str(step.get('number', step_index + 1))
+        padding = 70
+        max_text_width = self.width - (padding * 2)
         
-        self._draw_text_with_shadow(draw, (70, 80), step_num, self.font_step_number, accent_rgb, shadow_offset=5)
+        number_font = ImageFont.truetype('assets/fonts/Orbitron-Bold.ttf', 180)
+        self._draw_text_with_shadow(draw, (padding, 60), step_num, number_font, accent_rgb, shadow_offset=5)
         
+        progress_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 36)
         progress_text = f"STEP {step_num} OF {total_steps}"
-        draw.text((70, 280), progress_text, font=self.font_header, fill=(120, 120, 120))
+        draw.text((padding, 250), progress_text, font=progress_font, fill=(120, 120, 120))
         
         step_title = step.get('title', f'Step {step_num}')
-        title_lines = self._wrap_text(step_title.upper(), self.font_step_header_light, self.width - 140)
+        title_font = self._get_dynamic_font(step_title.upper(), 'assets/fonts/Stardom-Regular.ttf', max_text_width, 70, 40)
+        title_lines = self._wrap_text(step_title.upper(), title_font, max_text_width)
         
-        y_offset = 380
+        bbox = draw.textbbox((0, 0), "Ag", font=title_font)
+        line_height = bbox[3] - bbox[1] + 12
+        
+        y_offset = 340
         for line in title_lines:
-            draw.text((70, y_offset), line, font=self.font_step_header_light, fill=(255, 255, 255))
-            y_offset += 75
+            self._draw_text_with_shadow(draw, (padding, y_offset), line, title_font, (255, 255, 255), shadow_offset=3)
+            y_offset += line_height
         
         y_offset += 30
-        draw.line([(70, y_offset), (self.width - 70, y_offset)], fill=accent_rgb, width=3)
-        y_offset += 50
+        draw.line([(padding, y_offset), (self.width - padding, y_offset)], fill=accent_rgb, width=3)
+        y_offset += 45
         
         description = step.get('description', '')
-        desc_lines = self._wrap_text(description, self.font_body_large, self.width - 140)
+        body_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 38)
+        desc_lines = self._wrap_text(description, body_font, max_text_width)
         
         for line in desc_lines:
-            draw.text((70, y_offset), line, font=self.font_body_large, fill=(220, 220, 220))
-            y_offset += 55
+            draw.text((padding, y_offset), line, font=body_font, fill=(210, 210, 210))
+            y_offset += 52
         
         watermark = self.branding.get('watermark', '@techiavelli')
-        bbox = draw.textbbox((0, 0), watermark, font=self.font_stardom_medium)
+        watermark_font = ImageFont.truetype('assets/fonts/Stardom-Regular.ttf', 32)
+        bbox = draw.textbbox((0, 0), watermark, font=watermark_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 70), watermark, font=self.font_stardom_medium, fill=(120, 120, 120))
+        draw.text((x, self.height - 60), watermark, font=watermark_font, fill=(120, 120, 120))
         
         output_path = self.output_dir / f"slide_{step_index + 1:02d}_step.png"
         img.save(output_path, 'PNG', quality=95)
@@ -379,7 +380,7 @@ class DailyAidSlideBuilder:
         return output_path
     
     def build_cta_slide(self, idea: Dict) -> Path:
-        """Build the call-to-action slide with dynamic sizing to fit all content."""
+        """Build the call-to-action slide with large, impactful content."""
         img = self._create_title_background()
         draw = ImageDraw.Draw(img)
         
@@ -389,69 +390,61 @@ class DailyAidSlideBuilder:
         draw.rectangle([(0, 0), (self.width, 6)], fill=accent_rgb)
         draw.rectangle([(0, self.height - 6), (self.width, self.height)], fill=accent_rgb)
         
-        padding = 60
+        padding = 50
         max_text_width = self.width - (padding * 2)
         
-        header_font = self._get_dynamic_font("Ready to Start?", 'assets/fonts/Comico-Regular.ttf', max_text_width, 90, 50)
+        header_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 95)
         ready_text = "Ready to Start?"
         bbox = draw.textbbox((0, 0), ready_text, font=header_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        self._draw_text_with_shadow(draw, (x, 80), ready_text, header_font, accent_rgb, shadow_offset=4)
-        header_height = bbox[3] - bbox[1]
+        self._draw_text_with_shadow(draw, (x, 50), ready_text, header_font, accent_rgb, shadow_offset=4)
         
-        content_start_y = 80 + header_height + 80
-        
-        label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 32)
+        label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 40)
         cta_label = "Just copy the caption below into"
         bbox = draw.textbbox((0, 0), cta_label, font=label_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, content_start_y), cta_label, font=label_font, fill=(160, 160, 160))
+        draw.text((x, 220), cta_label, font=label_font, fill=(160, 160, 160))
         
-        main_y = content_start_y + 55
         cta_main = "CHATGPT OR CLAUDE"
-        main_font = self._get_dynamic_font(cta_main, 'assets/fonts/Stardom-Regular.ttf', max_text_width, 75, 40)
+        main_font = self._get_dynamic_font(cta_main, 'assets/fonts/Stardom-Regular.ttf', max_text_width, 90, 50)
         bbox = draw.textbbox((0, 0), cta_main, font=main_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        self._draw_text_with_shadow(draw, (x, main_y), cta_main, main_font, (255, 255, 255), shadow_offset=3)
-        main_height = bbox[3] - bbox[1]
+        self._draw_text_with_shadow(draw, (x, 290), cta_main, main_font, (255, 255, 255), shadow_offset=4)
         
-        label2_y = main_y + main_height + 25
         cta_label2 = "and let AI guide you through it"
         bbox = draw.textbbox((0, 0), cta_label2, font=label_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, label2_y), cta_label2, font=label_font, fill=(160, 160, 160))
+        draw.text((x, 420), cta_label2, font=label_font, fill=(160, 160, 160))
         
-        arrow_y = label2_y + 80
         arrow_text = "↓"
-        arrow_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 100)
+        arrow_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 140)
         bbox = draw.textbbox((0, 0), arrow_text, font=arrow_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, arrow_y), arrow_text, font=arrow_font, fill=green_rgb)
+        draw.text((x, 520), arrow_text, font=arrow_font, fill=green_rgb)
         
-        hint_y = arrow_y + 130
-        hint_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 30)
+        hint_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 42)
         caption_hint = "THE PROMPT IS IN THE CAPTION"
         bbox = draw.textbbox((0, 0), caption_hint, font=hint_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, hint_y), caption_hint, font=hint_font, fill=(180, 180, 180))
+        draw.text((x, 730), caption_hint, font=hint_font, fill=(180, 180, 180))
         
         tools = idea.get('tools_mentioned', [])
         if tools:
-            tools_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 26)
+            tools_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 32)
             tools_text = "Tools: " + ", ".join(tools[:5])
             tools_lines = self._wrap_text(tools_text, tools_font, max_text_width)
-            y_tools = self.height - 140
+            y_tools = self.height - 160
             for line in tools_lines:
                 bbox = draw.textbbox((0, 0), line, font=tools_font)
                 x = (self.width - (bbox[2] - bbox[0])) // 2
                 draw.text((x, y_tools), line, font=tools_font, fill=(120, 120, 120))
-                y_tools += 35
+                y_tools += 42
         
         watermark = self.branding.get('watermark', '@techiavelli')
-        watermark_font = ImageFont.truetype('assets/fonts/Stardom-Regular.ttf', 28)
+        watermark_font = ImageFont.truetype('assets/fonts/Stardom-Regular.ttf', 32)
         bbox = draw.textbbox((0, 0), watermark, font=watermark_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 45), watermark, font=watermark_font, fill=(120, 120, 120))
+        draw.text((x, self.height - 60), watermark, font=watermark_font, fill=(120, 120, 120))
         
         output_path = self.output_dir / "slide_99_cta.png"
         img.save(output_path, 'PNG', quality=95)
