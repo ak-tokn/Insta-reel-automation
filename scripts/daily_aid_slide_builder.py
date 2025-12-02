@@ -269,7 +269,11 @@ class DailyAidSlideBuilder:
         
         title = idea.get('title', 'AI Money Idea')
         income_method = idea.get('income_method', 'automating tasks')
-        monthly_income = idea.get('monthly_income', idea.get('estimated_earnings', '$500-2000/mo'))
+        revenue_data = idea.get('revenue', {})
+        if isinstance(revenue_data, dict):
+            monthly_income = revenue_data.get('estimate', idea.get('monthly_income', '$500-2000/mo'))
+        else:
+            monthly_income = idea.get('monthly_income', '$500-2000/mo')
         
         label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 40)
         title_font = ImageFont.truetype('assets/fonts/Nippo-Light.ttf', 95)
@@ -387,6 +391,17 @@ class DailyAidSlideBuilder:
         for line in desc_lines:
             draw.text((padding, y_offset), line, font=body_font, fill=(210, 210, 210))
             y_offset += 52
+        
+        extra_credit = step.get('extra_credit', '')
+        if extra_credit and isinstance(extra_credit, str) and extra_credit.strip():
+            extra_credit_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 30)
+            extra_text = f"Extra Credit: {extra_credit}"
+            extra_lines = self._wrap_text(extra_text, extra_credit_font, max_text_width)
+            
+            extra_y = self.height - 140
+            for line in extra_lines:
+                draw.text((padding, extra_y), line, font=extra_credit_font, fill=(0, 180, 100))
+                extra_y += 38
         
         watermark = self.branding.get('watermark', '@techiavelli')
         watermark_font = ImageFont.truetype('assets/fonts/Zina-Regular.ttf', 32)

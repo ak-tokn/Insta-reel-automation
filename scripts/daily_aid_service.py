@@ -84,36 +84,59 @@ class DailyAidService:
     
     def _get_system_prompt(self) -> str:
         """System prompt for generating Daily Ai'ds content."""
-        return """You are a genius tech entrepreneur and growth hacker who sees opportunities others miss. You combine:
-- Deep technical knowledge of AI tools (ChatGPT, Claude, Midjourney, Runway, ElevenLabs, etc.)
-- Understanding of online monetization (SaaS, content, freelancing, automation, arbitrage)
-- Grey-hat marketing tactics that push boundaries but stay legal
-- Knowledge of what's trending and what people will pay for
+        return """You are a senior software architect and indie hacker who builds real, profitable projects. You think like a lead engineer delivering a shippable MVP.
 
-Your ideas should be:
-- SPECIFIC and ACTIONABLE - not vague "start a business" advice
-- MODERN - leveraging the latest AI tools and platforms
-- ENTICING - making people feel like they just discovered a cheat code
-- REALISTIC - actually achievable by a motivated person with a laptop
-- GREY-HAT - clever, borderline, but legal. The kind of thing most people don't know you can do.
+REVENUE REASONING (MANDATORY):
+Before providing ANY income estimate, you MUST mentally calculate:
+1. Addressable market size (how many potential customers exist?)
+2. Realistic pricing (what do similar services charge?)
+3. Conversion rate (what % of leads become paying customers?)
+4. Time investment (hours per week to maintain?)
+5. Competition (how saturated is this space?)
+
+NEVER use generic ranges like "$1000-3000/mo". Each project has unique economics:
+- A niche Notion template might make $50-200/mo
+- A productized AI service for agencies could make $3000-8000/mo
+- A simple automation script sold on Gumroad might make $100-400/mo
+- A white-label SaaS for a specific industry could make $5000-15000/mo
+
+IMPLEMENTATION PHASES:
+Think like an engineer breaking down a project. Each phase should be:
+- A discrete deliverable (something you can "ship")
+- Specific about WHAT to build and HOW
+- Include actual technical details (frameworks, APIs, databases)
+- Ordered logically (setup → core → polish → launch → scale)
+
+Example good phases:
+- "Set up Next.js project with Supabase auth and Stripe billing"
+- "Build content generation pipeline using OpenAI API with rate limiting"
+- "Create admin dashboard for managing client accounts"
+
+Example BAD phases:
+- "Research your niche" (too vague)
+- "Leverage AI for content" (means nothing)
+- "Scale your business" (not actionable)
+
+AUTOMATION OPPORTUNITIES:
+Identify where MCPs (Model Context Protocol), plugins, or automation tools could supercharge the project:
+- Replit MCP for code generation/deployment
+- Zapier/Make.com for workflow automation
+- Perplexity MCP for real-time research
+- Browser automation (Playwright, Puppeteer)
+- Notion API, Airtable API, etc.
+
+Only include "extra_credit" when there's a genuine automation opportunity.
 
 Categories to explore:
 - AI automation services for businesses
-- Content creation at scale (faceless YouTube, AI blogs, social media)
+- Content creation at scale (faceless YouTube, AI blogs)
 - Digital products and templates
 - Freelance services with AI leverage
-- Arbitrage opportunities (pricing, attention, information)
 - Micro-SaaS and tool building
 - AI-enhanced consulting
 - Data and research services
-- Creative services at scale
 
-Avoid:
-- Dropshipping (oversaturated)
-- Generic "start a course" advice
-- Crypto/NFT schemes
-- Anything requiring significant capital
-- MLM or referral schemes
+Avoid: Dropshipping, generic courses, crypto/NFT, high capital requirements, MLM.
 
 Always respond in valid JSON format."""
 
@@ -139,46 +162,64 @@ Always respond in valid JSON format."""
 
 Theme direction (interpret creatively): {selected_theme}
 
-Create a sophisticated, grey-hat, money-making idea that uses AI and online tools.
+Create a sophisticated, real-world money-making project that uses AI tools.
 
 OUTPUT FORMAT (JSON):
 {{
-    "title": "DESCRIPTIVE action-based title that clearly explains what you're building and selling. NOT vague or cheesy marketing speak. Examples of GOOD titles: 'Selling AI-Made Resume Templates', 'Offering AI Video Editing Services', 'Building Custom ChatGPT Bots for Businesses'. Examples of BAD titles: 'Template Empire', 'Cash Machine', 'Money Printer', 'Digital Goldmine'. The title should tell someone EXACTLY what they will be doing.",
+    "title": "DESCRIPTIVE action-based title that clearly explains what you're building. Examples: 'Building an AI Resume Review SaaS', 'Creating a Faceless TikTok Automation Pipeline', 'Selling White-Label ChatGPT Integrations to Agencies'. NO vague titles like 'Money Machine' or 'Digital Empire'.",
     
-    "income_method": "Short phrase describing HOW the money is made (e.g., 'selling templates on Etsy', 'charging $500/month per client', 'flipping designs on Creative Market'). Be specific about WHERE the money comes from.",
+    "income_method": "Short phrase: HOW the money is made (e.g., 'SaaS subscriptions at $29/mo', 'per-project fees of $200-500', 'affiliate commissions from tool signups')",
     
-    "summary": "One compelling sentence (under 20 words) that makes this sound irresistible. Hook them.",
+    "summary": "One compelling sentence (under 20 words) that hooks them.",
     
-    "hook": "A provocative one-liner for social media (under 15 words) - the kind that makes people screenshot",
+    "hook": "A provocative one-liner for social media (under 15 words)",
+    
+    "revenue": {{
+        "estimate": "The realistic monthly income like '$200-600/mo' or '$2000-4000/mo' - MUST be specific to THIS project",
+        "assumptions": "Brief explanation of how you calculated this (e.g., '10 clients at $50/mo each' or '200 template sales at $15 each')"
+    }},
     
     "steps": [
         {{
             "number": 1,
-            "title": "Short step title (3-5 words)",
-            "description": "SPECIFIC and ACTIONABLE. Name exact tools (e.g., 'Open Canva.com and use their resume template section', 'Go to Upwork.com and create a profile'). Make it sound EASY and MOTIVATING. Avoid vague phrases like 'research trends' or 'identify your niche' - instead say exactly HOW to do it with specific tools and websites."
-        }},
-        // ... 5-8 more steps
+            "title": "Short phase title (3-6 words)",
+            "description": "IMPLEMENTATION PHASE - What to actually BUILD. Include specific tech: frameworks, APIs, databases, tools. Example: 'Create a Next.js app with Supabase for user auth. Set up Stripe for payments using their npm package. Deploy on Vercel.'",
+            "extra_credit": "Optional - only include if there's an MCP, plugin, or automation that could help. Example: 'Use Replit Agent to scaffold the entire project in minutes' or 'Connect Zapier to auto-post to social media'"
+        }}
     ],
     
-    "tools_mentioned": ["List", "of", "specific", "tools", "mentioned"],
-    
-    "monthly_income": "Just the amount like '$500-2000/mo' or '$1000-3000/mo' - keep it short",
+    "tools_mentioned": ["Specific", "tools", "and", "frameworks", "used"],
     
     "difficulty": "beginner/intermediate/advanced",
     
-    "time_to_first_dollar": "Realistic timeframe like '1-2 weeks' or '3-5 days'",
+    "time_to_first_dollar": "Realistic timeframe like '2-3 weeks' or '1 month'",
     
-    "kickoff_prompt": "A detailed prompt (150-300 words) that someone can paste into ChatGPT or Claude to get started on implementing this idea. This should be specific and actionable - helping them research, plan, or create the first deliverable. Include what to ask the AI to do step-by-step."
+    "kickoff_prompt": "A detailed prompt (200-400 words) that someone can paste into Claude or ChatGPT to start building. This should be an ACTUAL implementation prompt - asking the AI to help them set up the project, write code, create the first deliverable. Be specific about what files to create, what APIs to use, what the MVP should include."
 }}
 
 CRITICAL RULES:
-1. TITLE must clearly describe what they're DOING and SELLING - no vague buzzwords
-2. STEPS must mention SPECIFIC websites and tools by name (Canva, Fiverr, Gumroad, Notion, etc.)
-3. STEPS should sound EASY and EXCITING - not like homework
-4. Never use phrases like "research your niche" or "identify trends" without explaining HOW
-5. Each step should feel like "oh that's simple, I can do that right now"
+1. REVENUE must be CALCULATED based on realistic assumptions - never use generic "$1000-3000/mo"
+   - Low-effort template sales: $50-300/mo
+   - Niche SaaS with small market: $500-2000/mo  
+   - Agency services with 3-5 clients: $2000-8000/mo
+   - Viral content with sponsorships: depends on niche
+   
+2. STEPS must be IMPLEMENTATION PHASES like an engineer would plan:
+   - "Set up the project with [specific stack]"
+   - "Build the [core feature] using [specific API/library]"
+   - "Create the [UI/dashboard/pipeline] with [specific tools]"
+   - "Deploy and set up [payment/auth/analytics]"
+   - "Launch on [specific platforms] with [specific strategy]"
+   
+3. EXTRA_CREDIT is optional - only include when there's a real automation opportunity:
+   - MCPs: Replit MCP, Perplexity MCP, filesystem MCP
+   - Automation: Zapier, Make.com, n8n
+   - Browser tools: Playwright, Puppeteer
+   - APIs: Notion API, Airtable, etc.
 
-Generate now:"""
+4. NO vague phrases like "research trends", "leverage AI", "scale your business"
+
+Generate a REAL project that a developer could start building TODAY:"""
 
 
 def generate_daily_aid(idea_number: int) -> Dict:
