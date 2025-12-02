@@ -119,7 +119,7 @@ The flash reel format features:
   },
   "branding": {
     "header_text": "DAILY AI'DS",
-    "watermark": "@techiavelli",
+    "watermark": "@techiavellian",
     "cta_text": "Copy the caption into Claude/ChatGPT to get started"
   },
   "fonts": {

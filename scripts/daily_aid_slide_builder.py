@@ -340,7 +340,7 @@ class DailyAidSlideBuilder:
         x = (self.width - (bbox[2] - bbox[0])) // 2
         draw.text((x, self.height - 160), tagline2, font=tagline_font, fill=accent_rgb)
         
-        watermark = self.branding.get('watermark', '@techiavelli')
+        watermark = self.branding.get('watermark', '@techiavellian')
         watermark_font = ImageFont.truetype('assets/fonts/Zina-Regular.ttf', 32)
         bbox = draw.textbbox((0, 0), watermark, font=watermark_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
@@ -413,7 +413,7 @@ class DailyAidSlideBuilder:
                 draw.text((padding, extra_y), line, font=extra_credit_font, fill=(0, 180, 100))
                 extra_y += 38
         
-        watermark = self.branding.get('watermark', '@techiavelli')
+        watermark = self.branding.get('watermark', '@techiavellian')
         watermark_font = ImageFont.truetype('assets/fonts/Zina-Regular.ttf', 32)
         bbox = draw.textbbox((0, 0), watermark, font=watermark_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
@@ -492,7 +492,7 @@ class DailyAidSlideBuilder:
                 draw.text((x, y_tools), line, font=tools_font, fill=accent_rgb)
                 y_tools += 42
         
-        watermark = self.branding.get('watermark', '@techiavelli')
+        watermark = self.branding.get('watermark', '@techiavellian')
         watermark_font = ImageFont.truetype('assets/fonts/Zina-Regular.ttf', 32)
         bbox = draw.textbbox((0, 0), watermark, font=watermark_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
