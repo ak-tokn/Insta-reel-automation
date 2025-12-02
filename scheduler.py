@@ -1,6 +1,6 @@
 """
 StoicAlgo Scheduler for Replit
-Runs 5 posts per day at strategic times for maximum engagement.
+Runs daily content: 2 Reel posts + 1 Daily Ai'ds carousel post.
 """
 
 import schedule
@@ -9,6 +9,7 @@ import random
 import logging
 from datetime import datetime
 from scripts.orchestrator import run_pipeline
+from scripts.daily_aids_orchestrator import run_daily_aids
 from keep_alive import keep_alive
 
 # Setup logging
@@ -19,22 +20,40 @@ logging.basicConfig(
 logger = logging.getLogger("Scheduler")
 
 
-def post_to_instagram():
-    """Execute a single Instagram post."""
+def post_reel():
+    """Execute a single Reel (quote) post."""
     try:
         logger.info("=" * 50)
-        logger.info(f"Starting scheduled post at {datetime.now()}")
+        logger.info(f"Starting scheduled REEL post at {datetime.now()}")
         
         result = run_pipeline(post_to_instagram=True)
         
         if result.get('status') == 'completed':
             post_id = result.get('output', {}).get('post_result', {}).get('post_id', 'N/A')
-            logger.info(f"✅ Post successful! Post ID: {post_id}")
+            logger.info(f"✅ Reel post successful! Post ID: {post_id}")
         else:
-            logger.error(f"❌ Post failed: {result.get('error', 'Unknown error')}")
+            logger.error(f"❌ Reel post failed: {result.get('error', 'Unknown error')}")
             
     except Exception as e:
-        logger.error(f"❌ Scheduler error: {e}", exc_info=True)
+        logger.error(f"❌ Reel scheduler error: {e}", exc_info=True)
+
+
+def post_daily_aids():
+    """Execute the Daily Ai'ds carousel post."""
+    try:
+        logger.info("=" * 50)
+        logger.info(f"Starting scheduled DAILY AI'DS post at {datetime.now()}")
+        
+        result = run_daily_aids(dry_run=False)
+        
+        if result.get('success'):
+            post_id = result.get('post_id', 'N/A')
+            logger.info(f"✅ Daily Ai'ds post successful! Post ID: {post_id}")
+        else:
+            logger.error(f"❌ Daily Ai'ds post failed: {result.get('error', 'Unknown error')}")
+            
+    except Exception as e:
+        logger.error(f"❌ Daily Ai'ds scheduler error: {e}", exc_info=True)
 
 
 def add_jitter(base_time: str, jitter_minutes: int = 15) -> str:
@@ -55,29 +74,34 @@ def add_jitter(base_time: str, jitter_minutes: int = 15) -> str:
 
 def setup_schedule():
     """
-    Set up 5 daily posts at optimal engagement times (PST).
+    Set up daily content schedule (PST):
+    - 2 Reel posts (stoic quotes)
+    - 1 Daily Ai'ds carousel post
     
-    Optimal posting times:
-    - 7:00 AM  - Morning commute
-    - 12:00 PM - Lunch break  
-    - 5:00 PM  - End of work day
-    - 8:00 PM  - Evening scroll
-    - 10:00 PM - Late night
+    Schedule:
+    - 8:00 AM  - Reel (morning motivation)
+    - 12:00 PM - Daily Ai'ds (lunch break learning)
+    - 6:00 PM  - Reel (evening scroll)
     """
     
-    post_times = [
-        "07:00",  # Morning
-        "12:00",  # Lunch
-        "17:00",  # After work
-        "20:00",  # Evening
-        "22:00",  # Night
+    reel_times = [
+        "08:00",  # Morning motivation
+        "18:00",  # Evening scroll
     ]
     
-    for base_time in post_times:
-        # Add slight randomization to appear more natural
+    daily_aids_times = [
+        "12:00",  # Lunch break - perfect for learning content
+    ]
+    
+    for base_time in reel_times:
         scheduled_time = add_jitter(base_time, jitter_minutes=10)
-        schedule.every().day.at(scheduled_time).do(post_to_instagram)
-        logger.info(f"📅 Scheduled post at {scheduled_time}")
+        schedule.every().day.at(scheduled_time).do(post_reel)
+        logger.info(f"📅 Scheduled REEL at {scheduled_time}")
+    
+    for base_time in daily_aids_times:
+        scheduled_time = add_jitter(base_time, jitter_minutes=10)
+        schedule.every().day.at(scheduled_time).do(post_daily_aids)
+        logger.info(f"📅 Scheduled DAILY AI'DS at {scheduled_time}")
 
 
 def run_scheduler():
@@ -95,7 +119,11 @@ def run_scheduler():
     setup_schedule()
     
     logger.info("=" * 60)
-    logger.info("✅ Scheduler running! Posts scheduled for today:")
+    logger.info("✅ Scheduler running! Daily content schedule:")
+    logger.info("  📹 2x Reels (stoic quotes)")
+    logger.info("  🎠 1x Daily Ai'ds (carousel)")
+    logger.info("")
+    logger.info("Scheduled times:")
     for job in schedule.get_jobs():
         logger.info(f"  → {job.next_run.strftime('%H:%M')}")
     logger.info("=" * 60)

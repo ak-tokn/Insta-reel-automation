@@ -4,6 +4,10 @@
 StoicAlgo is an automated content creation and posting system for Instagram, focused on stoic/philosophical quotes (Reels) and AI-powered money-making ideas (Carousel posts). The system generates video and image content with text overlays, background music, and posts on a configurable schedule.
 
 ## Recent Changes
+- **Dec 02, 2025**: Updated schedule: 2 Reels (8am, 6pm) + 1 Daily Ai'ds (12pm) per day
+- **Dec 02, 2025**: Enhanced idea generation with 30+ creative themes and modern tech requirements (GPT-4o, Claude 3.5)
+- **Dec 02, 2025**: Added "(ai can do it)" indicator for steps AI can fully automate
+- **Dec 02, 2025**: Scaling steps now show revenue math (price × clients = target)
 - **Dec 02, 2025**: Added "Daily Ai'ds" carousel post feature - AI-generated money-making ideas with step-by-step breakdowns
 - **Dec 02, 2025**: Added carousel posting capability to Instagram client
 - **Dec 02, 2025**: Created DailyAidService for OpenAI-powered idea generation
@@ -18,7 +22,7 @@ StoicAlgo is an automated content creation and posting system for Instagram, foc
 ## Project Architecture
 
 ### Core Components
-- `scheduler.py` - Main entry point, schedules 5 daily posts (7am, 12pm, 5pm, 8pm, 10pm)
+- `scheduler.py` - Main entry point, schedules 3 daily posts (2 Reels + 1 Daily Ai'ds carousel)
 - `scripts/orchestrator.py` - Pipeline coordinator, manages the content creation workflow
 - `scripts/video_builder.py` - FFmpeg-based video generation with Ken Burns, vignette, and glitch effects
 - `scripts/flash_reel_builder.py` - Flash reel format with rapid image transitions and voiceover
