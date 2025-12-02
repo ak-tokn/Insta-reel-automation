@@ -35,30 +35,34 @@ class DailyAidSlideBuilder:
         self._load_fonts()
     
     def _load_fonts(self):
-        """Load fonts for rendering."""
-        title_font_path = self.carousel_config.get('title_font', 'assets/fonts/Panchang-Regular.ttf')
-        body_font_path = self.carousel_config.get('body_font', 'assets/fonts/Paquito-Regular.ttf')
-        
-        title_size = self.carousel_config.get('title_size', 72)
-        subtitle_size = self.carousel_config.get('subtitle_size', 42)
-        body_size = self.carousel_config.get('body_size', 36)
-        step_number_size = self.carousel_config.get('step_number_size', 120)
+        """Load fonts for rendering with improved visual hierarchy."""
+        display_font = 'assets/fonts/Panchang-Medium.ttf'
+        accent_font = 'assets/fonts/Panchang-Regular.ttf'
+        body_font = 'assets/fonts/Montserrat-Variable.ttf'
         
         try:
-            self.font_title = ImageFont.truetype(title_font_path, title_size)
-            self.font_subtitle = ImageFont.truetype(title_font_path, subtitle_size)
-            self.font_body = ImageFont.truetype(body_font_path, body_size)
-            self.font_step_number = ImageFont.truetype(title_font_path, step_number_size)
-            self.font_header = ImageFont.truetype(title_font_path, 32)
-            self.font_small = ImageFont.truetype(body_font_path, 28)
+            self.font_title = ImageFont.truetype(display_font, 88)
+            self.font_title_large = ImageFont.truetype(display_font, 100)
+            self.font_subtitle = ImageFont.truetype(accent_font, 48)
+            self.font_body = ImageFont.truetype(body_font, 38)
+            self.font_body_large = ImageFont.truetype(body_font, 42)
+            self.font_step_number = ImageFont.truetype(display_font, 180)
+            self.font_step_title = ImageFont.truetype(display_font, 52)
+            self.font_header = ImageFont.truetype(accent_font, 36)
+            self.font_small = ImageFont.truetype(body_font, 30)
+            self.font_cta = ImageFont.truetype(display_font, 64)
         except Exception as e:
             logger.warning(f"Failed to load custom fonts: {e}, using default")
             self.font_title = ImageFont.load_default()
+            self.font_title_large = ImageFont.load_default()
             self.font_subtitle = ImageFont.load_default()
             self.font_body = ImageFont.load_default()
+            self.font_body_large = ImageFont.load_default()
             self.font_step_number = ImageFont.load_default()
+            self.font_step_title = ImageFont.load_default()
             self.font_header = ImageFont.load_default()
             self.font_small = ImageFont.load_default()
+            self.font_cta = ImageFont.load_default()
     
     def _hex_to_rgb(self, hex_color: str) -> Tuple[int, int, int]:
         """Convert hex color to RGB tuple."""
@@ -146,31 +150,31 @@ class DailyAidSlideBuilder:
         
         accent_rgb = self._hex_to_rgb(self.accent_color)
         header_full = f"{header_text} #{idea_number}"
-        bbox = draw.textbbox((0, 0), header_full, font=self.font_header)
+        bbox = draw.textbbox((0, 0), header_full, font=self.font_subtitle)
         header_width = bbox[2] - bbox[0]
         header_x = (self.width - header_width) // 2
-        draw.text((header_x, 80), header_full, font=self.font_header, fill=accent_rgb)
+        draw.text((header_x, 60), header_full, font=self.font_subtitle, fill=accent_rgb)
         
         title = idea.get('title', 'AI Money Idea')
-        title_lines = self._wrap_text(title.upper(), self.font_title, self.width - 120)
+        title_lines = self._wrap_text(title.upper(), self.font_title_large, self.width - 100)
         
-        y_offset = 300
+        y_offset = 250
         for line in title_lines:
-            bbox = draw.textbbox((0, 0), line, font=self.font_title)
+            bbox = draw.textbbox((0, 0), line, font=self.font_title_large)
             line_width = bbox[2] - bbox[0]
             x = (self.width - line_width) // 2
-            self._draw_text_with_shadow(draw, (x, y_offset), line, self.font_title, (255, 255, 255))
-            y_offset += 90
+            self._draw_text_with_shadow(draw, (x, y_offset), line, self.font_title_large, (255, 255, 255), shadow_offset=4)
+            y_offset += 110
         
         summary = idea.get('summary', '')
-        summary_lines = self._wrap_text(summary, self.font_subtitle, self.width - 160)
+        summary_lines = self._wrap_text(summary, self.font_body_large, self.width - 140)
         
-        y_offset += 80
+        y_offset += 60
         for line in summary_lines:
-            bbox = draw.textbbox((0, 0), line, font=self.font_subtitle)
+            bbox = draw.textbbox((0, 0), line, font=self.font_body_large)
             line_width = bbox[2] - bbox[0]
             x = (self.width - line_width) // 2
-            draw.text((x, y_offset), line, font=self.font_subtitle, fill=(200, 200, 200))
+            draw.text((x, y_offset), line, font=self.font_body_large, fill=(200, 200, 200))
             y_offset += 55
         
         earnings = idea.get('estimated_earnings', '')
@@ -178,33 +182,33 @@ class DailyAidSlideBuilder:
         time_to_money = idea.get('time_to_first_dollar', '')
         
         if earnings or difficulty or time_to_money:
-            y_offset = self.height - 350
+            y_offset = self.height - 380
             
             secondary_rgb = self._hex_to_rgb(self.secondary_color)
             
             if earnings:
-                bbox = draw.textbbox((0, 0), earnings, font=self.font_subtitle)
+                bbox = draw.textbbox((0, 0), earnings, font=self.font_cta)
                 x = (self.width - (bbox[2] - bbox[0])) // 2
-                draw.text((x, y_offset), earnings, font=self.font_subtitle, fill=secondary_rgb)
-                y_offset += 60
+                self._draw_text_with_shadow(draw, (x, y_offset), earnings, self.font_cta, secondary_rgb, shadow_offset=3)
+                y_offset += 85
             
             if difficulty:
                 diff_text = f"Difficulty: {difficulty.upper()}"
-                bbox = draw.textbbox((0, 0), diff_text, font=self.font_small)
+                bbox = draw.textbbox((0, 0), diff_text, font=self.font_body)
                 x = (self.width - (bbox[2] - bbox[0])) // 2
-                draw.text((x, y_offset), diff_text, font=self.font_small, fill=(150, 150, 150))
-                y_offset += 45
+                draw.text((x, y_offset), diff_text, font=self.font_body, fill=(150, 150, 150))
+                y_offset += 50
             
             if time_to_money:
                 time_text = f"First $ in: {time_to_money}"
-                bbox = draw.textbbox((0, 0), time_text, font=self.font_small)
+                bbox = draw.textbbox((0, 0), time_text, font=self.font_body)
                 x = (self.width - (bbox[2] - bbox[0])) // 2
-                draw.text((x, y_offset), time_text, font=self.font_small, fill=(150, 150, 150))
+                draw.text((x, y_offset), time_text, font=self.font_body, fill=(150, 150, 150))
         
         watermark = self.branding.get('watermark', '@techiavelli')
         bbox = draw.textbbox((0, 0), watermark, font=self.font_small)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 80), watermark, font=self.font_small, fill=(100, 100, 100))
+        draw.text((x, self.height - 70), watermark, font=self.font_small, fill=(100, 100, 100))
         
         output_path = self.output_dir / f"slide_00_title.png"
         img.save(output_path, 'PNG', quality=95)
@@ -222,36 +226,34 @@ class DailyAidSlideBuilder:
         accent_rgb = self._hex_to_rgb(self.accent_color)
         step_num = str(step.get('number', step_index + 1))
         
-        bbox = draw.textbbox((0, 0), step_num, font=self.font_step_number)
-        num_width = bbox[2] - bbox[0]
-        draw.text((80, 100), step_num, font=self.font_step_number, fill=accent_rgb)
+        self._draw_text_with_shadow(draw, (70, 80), step_num, self.font_step_number, accent_rgb, shadow_offset=5)
         
         progress_text = f"STEP {step_num} OF {total_steps}"
-        draw.text((80, 250), progress_text, font=self.font_header, fill=(100, 100, 100))
+        draw.text((70, 280), progress_text, font=self.font_header, fill=(120, 120, 120))
         
         step_title = step.get('title', f'Step {step_num}')
-        title_lines = self._wrap_text(step_title.upper(), self.font_subtitle, self.width - 160)
+        title_lines = self._wrap_text(step_title.upper(), self.font_step_title, self.width - 140)
         
-        y_offset = 350
+        y_offset = 380
         for line in title_lines:
-            self._draw_text_with_shadow(draw, (80, y_offset), line, self.font_subtitle, (255, 255, 255))
-            y_offset += 60
+            self._draw_text_with_shadow(draw, (70, y_offset), line, self.font_step_title, (255, 255, 255), shadow_offset=3)
+            y_offset += 70
         
-        y_offset += 40
-        draw.line([(80, y_offset), (self.width - 80, y_offset)], fill=(*accent_rgb, 50), width=2)
+        y_offset += 30
+        draw.line([(70, y_offset), (self.width - 70, y_offset)], fill=accent_rgb, width=3)
         y_offset += 50
         
         description = step.get('description', '')
-        desc_lines = self._wrap_text(description, self.font_body, self.width - 160)
+        desc_lines = self._wrap_text(description, self.font_body_large, self.width - 140)
         
         for line in desc_lines:
-            draw.text((80, y_offset), line, font=self.font_body, fill=(220, 220, 220))
-            y_offset += 50
+            draw.text((70, y_offset), line, font=self.font_body_large, fill=(220, 220, 220))
+            y_offset += 55
         
         watermark = self.branding.get('watermark', '@techiavelli')
         bbox = draw.textbbox((0, 0), watermark, font=self.font_small)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 80), watermark, font=self.font_small, fill=(100, 100, 100))
+        draw.text((x, self.height - 70), watermark, font=self.font_small, fill=(100, 100, 100))
         
         output_path = self.output_dir / f"slide_{step_index + 1:02d}_step.png"
         img.save(output_path, 'PNG', quality=95)
@@ -270,46 +272,46 @@ class DailyAidSlideBuilder:
         accent_rgb = self._hex_to_rgb(self.accent_color)
         
         ready_text = "READY TO START?"
-        bbox = draw.textbbox((0, 0), ready_text, font=self.font_title)
+        bbox = draw.textbbox((0, 0), ready_text, font=self.font_title_large)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        self._draw_text_with_shadow(draw, (x, 300), ready_text, self.font_title, (255, 255, 255))
+        self._draw_text_with_shadow(draw, (x, 250), ready_text, self.font_title_large, (255, 255, 255), shadow_offset=4)
         
         cta_text = self.branding.get('cta_text', 'Copy the caption into Claude/ChatGPT to get started')
-        cta_lines = self._wrap_text(cta_text, self.font_subtitle, self.width - 120)
+        cta_lines = self._wrap_text(cta_text, self.font_step_title, self.width - 100)
         
-        y_offset = 500
+        y_offset = 450
         for line in cta_lines:
-            bbox = draw.textbbox((0, 0), line, font=self.font_subtitle)
+            bbox = draw.textbbox((0, 0), line, font=self.font_step_title)
             x = (self.width - (bbox[2] - bbox[0])) // 2
-            draw.text((x, y_offset), line, font=self.font_subtitle, fill=accent_rgb)
-            y_offset += 60
+            draw.text((x, y_offset), line, font=self.font_step_title, fill=accent_rgb)
+            y_offset += 70
         
-        arrow_y = y_offset + 100
+        arrow_y = y_offset + 80
         arrow_text = "↓"
         bbox = draw.textbbox((0, 0), arrow_text, font=self.font_step_number)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, arrow_y), arrow_text, font=self.font_step_number, fill=secondary_rgb)
+        self._draw_text_with_shadow(draw, (x, arrow_y), arrow_text, self.font_step_number, secondary_rgb, shadow_offset=4)
         
         caption_hint = "THE PROMPT IS IN THE CAPTION"
-        bbox = draw.textbbox((0, 0), caption_hint, font=self.font_header)
+        bbox = draw.textbbox((0, 0), caption_hint, font=self.font_subtitle)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, arrow_y + 150), caption_hint, font=self.font_header, fill=(200, 200, 200))
+        draw.text((x, arrow_y + 180), caption_hint, font=self.font_subtitle, fill=(200, 200, 200))
         
         tools = idea.get('tools_mentioned', [])
         if tools:
             tools_text = "Tools: " + ", ".join(tools[:5])
-            tools_lines = self._wrap_text(tools_text, self.font_small, self.width - 160)
-            y_tools = self.height - 200
+            tools_lines = self._wrap_text(tools_text, self.font_body, self.width - 160)
+            y_tools = self.height - 180
             for line in tools_lines:
-                bbox = draw.textbbox((0, 0), line, font=self.font_small)
+                bbox = draw.textbbox((0, 0), line, font=self.font_body)
                 x = (self.width - (bbox[2] - bbox[0])) // 2
-                draw.text((x, y_tools), line, font=self.font_small, fill=(120, 120, 120))
-                y_tools += 35
+                draw.text((x, y_tools), line, font=self.font_body, fill=(120, 120, 120))
+                y_tools += 45
         
         watermark = self.branding.get('watermark', '@techiavelli')
         bbox = draw.textbbox((0, 0), watermark, font=self.font_small)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 80), watermark, font=self.font_small, fill=(100, 100, 100))
+        draw.text((x, self.height - 70), watermark, font=self.font_small, fill=(100, 100, 100))
         
         output_path = self.output_dir / "slide_99_cta.png"
         img.save(output_path, 'PNG', quality=95)
