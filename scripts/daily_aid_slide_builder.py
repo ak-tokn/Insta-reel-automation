@@ -259,7 +259,7 @@ class DailyAidSlideBuilder:
         monthly_income = idea.get('monthly_income', idea.get('estimated_earnings', '$500-2000/mo'))
         
         label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 40)
-        title_font = ImageFont.truetype('assets/fonts/Britney-Variable.ttf', 95)
+        title_font = ImageFont.truetype('assets/fonts/Nippo-Light.ttf', 95)
         title_lines = self._wrap_text(title.upper(), title_font, max_text_width)
         earnings_label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 36)
         amount_font = ImageFont.truetype('assets/fonts/Zina-Regular.ttf', 68)
@@ -352,7 +352,7 @@ class DailyAidSlideBuilder:
         draw.text((padding, 250), progress_text, font=progress_font, fill=(120, 120, 120))
         
         step_title = step.get('title', f'Step {step_num}')
-        title_font = ImageFont.truetype('assets/fonts/Britney-Variable.ttf', 80)
+        title_font = ImageFont.truetype('assets/fonts/Nippo-Light.ttf', 80)
         title_lines = self._wrap_text(step_title.upper(), title_font, max_text_width)
         
         bbox = draw.textbbox((0, 0), "Ag", font=title_font)
@@ -413,7 +413,7 @@ class DailyAidSlideBuilder:
         draw.text((x, 220), cta_label, font=label_font, fill=(160, 160, 160))
         
         cta_main = "CHATGPT OR CLAUDE"
-        main_font = self._get_dynamic_font(cta_main, 'assets/fonts/Britney-Variable.ttf', max_text_width, 90, 50)
+        main_font = self._get_dynamic_font(cta_main, 'assets/fonts/Nippo-Light.ttf', max_text_width, 90, 50)
         bbox = draw.textbbox((0, 0), cta_main, font=main_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
         self._draw_text_with_shadow(draw, (x, 290), cta_main, main_font, (255, 255, 255), shadow_offset=4)
