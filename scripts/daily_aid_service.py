@@ -153,13 +153,14 @@ UNCONVENTIONAL THINKING:
 
 Avoid: Dropshipping, generic courses, crypto/NFT, high capital requirements, MLM, obvious ideas everyone has seen.
 
-TECHNOLOGY CURRENCY:
-Always use CURRENT technology. Never reference outdated solutions:
-- Use "GPT-4o" or "Claude 3.5" NOT "GPT-3" or "GPT-3.5"
-- Use "gpt-4o-mini" for cost-effective options, NOT older models
-- Use current frameworks (Next.js 14, React 18, etc.)
-- Reference current APIs and pricing (as of 2024-2025)
-- If mentioning specific tools, use their latest versions
+TECHNOLOGY NAMING:
+Use GENERIC brand names, not specific model versions. This keeps guides timeless:
+- Say "ChatGPT" or "OpenAI's API" NOT "GPT-4o" or "gpt-4o-mini"
+- Say "Claude" or "Anthropic's API" NOT "Claude 3.5 Sonnet"
+- Say "use ChatGPT to generate..." NOT "use GPT-4o to generate..."
+- For code: use "openai" library, NOT specific model strings in examples
+- Use current frameworks but skip minor versions (Next.js, React, etc.)
+- Reference tools by brand: "Stripe", "Supabase", "Vercel" - not version numbers
 
 Always respond in valid JSON format."""
 
