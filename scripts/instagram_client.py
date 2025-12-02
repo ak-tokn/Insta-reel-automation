@@ -159,26 +159,28 @@ class InstagramClient:
         return None
     
     def _upload_to_temp_hosting(self, video_path: Path) -> Optional[str]:
-        """Upload video to temporary file hosting service."""
+        """Upload video to file hosting service."""
         
-        # Try litterbox.catbox.moe (designed for temporary files, good for videos)
+        # Use catbox.moe permanent hosting (Instagram accepts this)
         try:
-            logger.info("Trying litterbox.catbox.moe...")
+            logger.info("Uploading to catbox.moe...")
             with open(video_path, 'rb') as f:
                 response = requests.post(
-                    'https://litterbox.catbox.moe/resources/internals/api.php',
-                    data={'reqtype': 'fileupload', 'time': '72h'},
+                    'https://catbox.moe/user/api.php',
+                    data={'reqtype': 'fileupload'},
                     files={'fileToUpload': (video_path.name, f, 'video/mp4')},
                     timeout=180
                 )
                 if response.status_code == 200 and response.text.startswith('http'):
-                    return response.text.strip()
+                    url = response.text.strip()
+                    logger.info(f"Upload successful: {url}")
+                    return url
                 else:
-                    logger.warning(f"Litterbox response: {response.status_code} - {response.text[:100]}")
+                    logger.warning(f"Catbox response: {response.status_code} - {response.text[:100]}")
         except Exception as e:
-            logger.warning(f"litterbox upload failed: {e}")
+            logger.warning(f"Catbox upload failed: {e}")
         
-        # Try 0x0.st 
+        # Fallback to 0x0.st 
         try:
             logger.info("Trying 0x0.st...")
             with open(video_path, 'rb') as f:
@@ -197,14 +199,14 @@ class InstagramClient:
         return None
     
     def _upload_image_to_hosting(self, image_path: Path) -> Optional[str]:
-        """Upload image to temporary file hosting service for cover image."""
+        """Upload image to file hosting service for cover image."""
         
-        # Try litterbox.catbox.moe
+        # Use catbox.moe permanent hosting
         try:
             with open(image_path, 'rb') as f:
                 response = requests.post(
-                    'https://litterbox.catbox.moe/resources/internals/api.php',
-                    data={'reqtype': 'fileupload', 'time': '72h'},
+                    'https://catbox.moe/user/api.php',
+                    data={'reqtype': 'fileupload'},
                     files={'fileToUpload': (image_path.name, f, 'image/jpeg')},
                     timeout=60
                 )
@@ -269,7 +271,7 @@ class InstagramClient:
         
         params = {
             'access_token': self.access_token,
-            'fields': 'status_code'
+            'fields': 'status_code,status'
         }
         
         logger.info("Waiting for media to be processed...")
@@ -279,21 +281,35 @@ class InstagramClient:
                 response = requests.get(endpoint, params=params)
                 data = response.json()
                 
+                # Check for API error response
+                if 'error' in data:
+                    error = data['error']
+                    error_msg = error.get('message', 'Unknown API error')
+                    error_code = error.get('code', 'N/A')
+                    logger.error(f"API Error (code {error_code}): {error_msg}")
+                    raise RuntimeError(f"API Error: {error_msg}")
+                
                 status = data.get('status_code')
+                status_detail = data.get('status', '')
+                
+                logger.info(f"Status check {attempt + 1}/{max_attempts}: {status} - {status_detail}")
                 
                 if status == 'FINISHED':
                     logger.info("Media processing complete")
                     return True
                 elif status == 'ERROR':
-                    error = data.get('status', 'Unknown error')
+                    error = status_detail or 'Unknown error'
                     raise RuntimeError(f"Media processing failed: {error}")
                 elif status == 'IN_PROGRESS':
-                    logger.debug(f"Processing... (attempt {attempt + 1}/{max_attempts})")
                     time.sleep(10)  # Wait 10 seconds between checks
+                elif status == 'EXPIRED':
+                    raise RuntimeError("Media container expired - please retry")
                 else:
-                    logger.debug(f"Status: {status}")
+                    logger.debug(f"Unknown status: {status}, waiting...")
                     time.sleep(5)
                     
+            except RuntimeError:
+                raise
             except Exception as e:
                 if attempt == max_attempts - 1:
                     raise
