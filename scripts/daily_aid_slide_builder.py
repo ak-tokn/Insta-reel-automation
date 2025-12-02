@@ -383,6 +383,13 @@ class DailyAidSlideBuilder:
             self._draw_text_with_shadow(draw, (padding, y_offset), line, title_font, (255, 255, 255), shadow_offset=3)
             y_offset += line_height
         
+        ai_can_do_it = step.get('ai_can_do_it', False)
+        if ai_can_do_it:
+            ai_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 28)
+            ai_text = "(ai can do it)"
+            draw.text((padding, y_offset + 5), ai_text, font=ai_font, fill=accent_rgb)
+            y_offset += 45
+        
         y_offset += 25
         draw.line([(padding, y_offset), (self.width - padding, y_offset)], fill=accent_rgb, width=3)
         y_offset += 40
