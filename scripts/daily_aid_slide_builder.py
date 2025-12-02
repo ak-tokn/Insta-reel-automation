@@ -142,7 +142,23 @@ class DailyAidSlideBuilder:
         if bg_img and bg_img.exists():
             try:
                 img = Image.open(bg_img).convert('RGB')
-                img = img.resize((self.width, self.height), Image.Resampling.LANCZOS)
+                
+                img_width, img_height = img.size
+                target_ratio = self.width / self.height
+                img_ratio = img_width / img_height
+                
+                if img_ratio > target_ratio:
+                    new_height = self.height
+                    new_width = int(new_height * img_ratio)
+                else:
+                    new_width = self.width
+                    new_height = int(new_width / img_ratio)
+                
+                img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+                
+                left = (new_width - self.width) // 2
+                top = (new_height - self.height) // 2
+                img = img.crop((left, top, left + self.width, top + self.height))
                 enhancer = ImageEnhance.Brightness(img)
                 img = enhancer.enhance(0.45)
                 enhancer = ImageEnhance.Contrast(img)
