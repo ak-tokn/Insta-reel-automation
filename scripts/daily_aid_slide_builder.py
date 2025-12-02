@@ -234,13 +234,14 @@ class DailyAidSlideBuilder:
         
         accent_rgb = self._hex_to_rgb(self.accent_color)
         green_rgb = (0, 220, 100)
+        grey_rgb = (170, 170, 170)
         idea_number = idea.get('idea_number', 1)
         
         draw.rectangle([(0, 0), (self.width, 6)], fill=accent_rgb)
         draw.rectangle([(0, self.height - 6), (self.width, self.height)], fill=accent_rgb)
         
-        padding = 40
-        max_text_width = self.width - (padding * 2)
+        left_margin = 60
+        max_text_width = self.width - (left_margin * 2)
         
         header_text = f"Daily Ai'Ds #{idea_number}"
         header_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 95)
@@ -254,27 +255,27 @@ class DailyAidSlideBuilder:
         monthly_income = idea.get('monthly_income', idea.get('estimated_earnings', '$500-2000/mo'))
         
         label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 40)
-        title_font = self._get_dynamic_font(title.upper(), 'assets/fonts/Stardom-Regular.ttf', max_text_width, 120, 65)
+        title_font = ImageFont.truetype('assets/fonts/Stardom-Regular.ttf', 95)
         title_lines = self._wrap_text(title.upper(), title_font, max_text_width)
         earnings_label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 36)
         amount_font = ImageFont.truetype('assets/fonts/Montserrat-Bold.ttf', 68)
-        method_font = self._get_dynamic_font(income_method.lower(), 'assets/fonts/Montserrat-Bold.ttf', max_text_width, 44, 30)
+        method_font = self._get_dynamic_font(income_method.lower(), 'assets/fonts/Montserrat-Light.ttf', max_text_width, 38, 28)
         method_lines = self._wrap_text(income_method.lower(), method_font, max_text_width)
         
         label_bbox = draw.textbbox((0, 0), "Easy Prompting Idea:", font=label_font)
         label_h = label_bbox[3] - label_bbox[1]
         title_bbox = draw.textbbox((0, 0), "Ag", font=title_font)
-        title_line_h = title_bbox[3] - title_bbox[1] + 18
+        title_line_h = title_bbox[3] - title_bbox[1] + 15
         title_block_h = title_line_h * len(title_lines)
         earnings_label_bbox = draw.textbbox((0, 0), "set up in hours and make up to", font=earnings_label_font)
         earnings_label_h = earnings_label_bbox[3] - earnings_label_bbox[1]
         amount_bbox = draw.textbbox((0, 0), monthly_income, font=amount_font)
         amount_h = amount_bbox[3] - amount_bbox[1]
         method_bbox = draw.textbbox((0, 0), "Ag", font=method_font)
-        method_line_h = method_bbox[3] - method_bbox[1] + 10
+        method_line_h = method_bbox[3] - method_bbox[1] + 8
         method_block_h = method_line_h * len(method_lines)
         
-        total_content_h = label_h + 20 + title_block_h + 40 + earnings_label_h + 15 + amount_h + 35 + method_block_h
+        total_content_h = label_h + 15 + title_block_h + 35 + earnings_label_h + 12 + amount_h + 25 + method_block_h
         
         header_bottom = 25 + header_height + 40
         footer_top = self.height - 180
@@ -282,37 +283,25 @@ class DailyAidSlideBuilder:
         content_start_y = header_bottom + (available_space - total_content_h) // 2
         
         label_text = "Easy Prompting Idea:"
-        bbox = draw.textbbox((0, 0), label_text, font=label_font)
-        x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, content_start_y), label_text, font=label_font, fill=(160, 160, 160))
+        draw.text((left_margin, content_start_y), label_text, font=label_font, fill=(160, 160, 160))
         
-        title_y = content_start_y + label_h + 20
+        title_y = content_start_y + label_h + 15
         for line in title_lines:
-            bbox = draw.textbbox((0, 0), line, font=title_font)
-            line_width = bbox[2] - bbox[0]
-            x = (self.width - line_width) // 2
-            self._draw_text_with_shadow(draw, (x, title_y), line, title_font, (255, 255, 255), shadow_offset=5)
+            self._draw_text_with_shadow(draw, (left_margin, title_y), line, title_font, (255, 255, 255), shadow_offset=5)
             title_y += title_line_h
         
-        earnings_y = title_y + 40
+        earnings_y = title_y + 35
         
         earnings_label = "set up in hours and make up to"
-        bbox = draw.textbbox((0, 0), earnings_label, font=earnings_label_font)
-        x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, earnings_y), earnings_label, font=earnings_label_font, fill=(170, 170, 170))
+        draw.text((left_margin, earnings_y), earnings_label, font=earnings_label_font, fill=grey_rgb)
         
-        earnings_y += earnings_label_h + 15
-        bbox = draw.textbbox((0, 0), monthly_income, font=amount_font)
-        x = (self.width - (bbox[2] - bbox[0])) // 2
-        self._draw_text_with_shadow(draw, (x, earnings_y), monthly_income, amount_font, green_rgb, shadow_offset=3)
+        earnings_y += earnings_label_h + 12
+        self._draw_text_with_shadow(draw, (left_margin, earnings_y), monthly_income, amount_font, green_rgb, shadow_offset=3)
         
-        earnings_y += amount_h + 35
+        earnings_y += amount_h + 25
         
         for line in method_lines:
-            bbox = draw.textbbox((0, 0), line, font=method_font)
-            line_width = bbox[2] - bbox[0]
-            x = (self.width - line_width) // 2
-            self._draw_text_with_shadow(draw, (x, earnings_y), line, method_font, accent_rgb, shadow_offset=2)
+            draw.text((left_margin, earnings_y), line, font=method_font, fill=grey_rgb)
             earnings_y += method_line_h
         
         tagline_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 30)
@@ -359,20 +348,20 @@ class DailyAidSlideBuilder:
         draw.text((padding, 250), progress_text, font=progress_font, fill=(120, 120, 120))
         
         step_title = step.get('title', f'Step {step_num}')
-        title_font = self._get_dynamic_font(step_title.upper(), 'assets/fonts/Stardom-Regular.ttf', max_text_width, 70, 40)
+        title_font = ImageFont.truetype('assets/fonts/Stardom-Regular.ttf', 80)
         title_lines = self._wrap_text(step_title.upper(), title_font, max_text_width)
         
         bbox = draw.textbbox((0, 0), "Ag", font=title_font)
         line_height = bbox[3] - bbox[1] + 12
         
-        y_offset = 340
+        y_offset = 330
         for line in title_lines:
             self._draw_text_with_shadow(draw, (padding, y_offset), line, title_font, (255, 255, 255), shadow_offset=3)
             y_offset += line_height
         
-        y_offset += 30
+        y_offset += 25
         draw.line([(padding, y_offset), (self.width - padding, y_offset)], fill=accent_rgb, width=3)
-        y_offset += 45
+        y_offset += 40
         
         description = step.get('description', '')
         body_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 38)
