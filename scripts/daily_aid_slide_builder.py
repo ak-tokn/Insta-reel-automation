@@ -400,7 +400,7 @@ class DailyAidSlideBuilder:
         padding = 50
         max_text_width = self.width - (padding * 2)
         
-        header_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 95)
+        header_font = ImageFont.truetype('assets/fonts/Array-Wide.ttf', 95)
         ready_text = "Ready to Start?"
         bbox = draw.textbbox((0, 0), ready_text, font=header_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
@@ -437,7 +437,7 @@ class DailyAidSlideBuilder:
         
         tools = idea.get('tools_mentioned', [])
         if tools:
-            tools_font = ImageFont.truetype('assets/fonts/Montserrat-Bold.ttf', 32)
+            tools_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 32)
             tools_text = "Tools: " + ", ".join(tools[:5])
             tools_lines = self._wrap_text(tools_text, tools_font, max_text_width)
             y_tools = self.height - 160
