@@ -432,9 +432,6 @@ class DailyAidSlideBuilder:
         accent_rgb = self._hex_to_rgb(self.accent_color)
         green_rgb = (0, 200, 100)
         
-        draw.rectangle([(0, 0), (self.width, 6)], fill=accent_rgb)
-        draw.rectangle([(0, self.height - 6), (self.width, self.height)], fill=accent_rgb)
-        
         padding = 50
         max_text_width = self.width - (padding * 2)
         
@@ -467,11 +464,11 @@ class DailyAidSlideBuilder:
         x = (self.width - (bbox[2] - bbox[0])) // 2
         draw.text((x, 520), arrow_text, font=arrow_font, fill=green_rgb)
         
-        hint_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 42)
+        hint_font = ImageFont.truetype('assets/fonts/Array-Wide.ttf', 42)
         caption_hint = "Kickoff Prompt in Caption"
         bbox = draw.textbbox((0, 0), caption_hint, font=hint_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, 730), caption_hint, font=hint_font, fill=accent_rgb)
+        draw.text((x, 730), caption_hint, font=hint_font, fill=green_rgb)
         
         tools = idea.get('tools_mentioned', [])
         if tools:
