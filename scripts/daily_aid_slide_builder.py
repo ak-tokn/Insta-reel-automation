@@ -44,6 +44,8 @@ class DailyAidSlideBuilder:
         light_font = 'assets/fonts/Montserrat-Light.ttf'
         stardom_font = 'assets/fonts/Stardom-Regular.ttf'
         montserrat_font = 'assets/fonts/Montserrat-Light.ttf'
+        zina_font = 'assets/fonts/Zina-Regular.ttf'
+        comico_font = 'assets/fonts/Comico-Regular.ttf'
         
         try:
             self.font_title = ImageFont.truetype(title_font, 92)
@@ -51,9 +53,9 @@ class DailyAidSlideBuilder:
             self.font_subtitle = ImageFont.truetype(title_font, 50)
             self.font_body = ImageFont.truetype(body_font, 38)
             self.font_body_large = ImageFont.truetype(body_font, 44)
-            self.font_step_number = ImageFont.truetype(number_font, 200)
-            self.font_step_title = ImageFont.truetype(title_font, 56)
-            self.font_header = ImageFont.truetype(title_font, 40)
+            self.font_step_number = ImageFont.truetype(zina_font, 200)  # Zina for step numbers
+            self.font_step_title = ImageFont.truetype(comico_font, 56)  # Comico for step headers
+            self.font_header = ImageFont.truetype(zina_font, 40)  # Zina for Daily Ai'ds header
             self.font_small = ImageFont.truetype(body_font, 32)
             self.font_cta = ImageFont.truetype(title_font, 68)
             self.font_display_large = ImageFont.truetype(display_font, 85)
@@ -66,6 +68,8 @@ class DailyAidSlideBuilder:
             self.font_montserrat_400_medium = ImageFont.truetype(montserrat_font, 38)
             self.font_montserrat_500 = ImageFont.truetype(montserrat_font, 50)
             self.font_step_header_light = ImageFont.truetype(light_font, 58)
+            self.font_zina_header = ImageFont.truetype(zina_font, 52)  # Zina for header
+            self.font_comico_title = ImageFont.truetype(comico_font, 95)  # Comico for idea title
         except Exception as e:
             logger.warning(f"Failed to load custom fonts: {e}, using default")
             self.font_title = ImageFont.load_default()
@@ -244,7 +248,7 @@ class DailyAidSlideBuilder:
         max_text_width = self.width - (left_margin * 2)
         
         header_text = f"Daily Ai'Ds #{idea_number}"
-        header_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 95)
+        header_font = ImageFont.truetype('assets/fonts/Zina-Regular.ttf', 95)
         bbox = draw.textbbox((0, 0), header_text, font=header_font)
         header_x = (self.width - (bbox[2] - bbox[0])) // 2
         header_height = bbox[3] - bbox[1]
@@ -255,7 +259,7 @@ class DailyAidSlideBuilder:
         monthly_income = idea.get('monthly_income', idea.get('estimated_earnings', '$500-2000/mo'))
         
         label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 40)
-        title_font = ImageFont.truetype('assets/fonts/Nippo-Bold.ttf', 95)
+        title_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 95)
         title_lines = self._wrap_text(title.upper(), title_font, max_text_width)
         earnings_label_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 36)
         amount_font = ImageFont.truetype('assets/fonts/Stardom-Regular.ttf', 68)
@@ -340,7 +344,7 @@ class DailyAidSlideBuilder:
         padding = 70
         max_text_width = self.width - (padding * 2)
         
-        number_font = ImageFont.truetype('assets/fonts/Orbitron-Bold.ttf', 180)
+        number_font = ImageFont.truetype('assets/fonts/Zina-Regular.ttf', 180)
         self._draw_text_with_shadow(draw, (padding, 60), step_num, number_font, accent_rgb, shadow_offset=5)
         
         progress_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 36)
@@ -348,7 +352,7 @@ class DailyAidSlideBuilder:
         draw.text((padding, 250), progress_text, font=progress_font, fill=(120, 120, 120))
         
         step_title = step.get('title', f'Step {step_num}')
-        title_font = ImageFont.truetype('assets/fonts/Paquito-Variable.ttf', 80)
+        title_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 80)
         title_lines = self._wrap_text(step_title.upper(), title_font, max_text_width)
         
         bbox = draw.textbbox((0, 0), "Ag", font=title_font)
