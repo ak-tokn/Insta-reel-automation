@@ -241,13 +241,10 @@ class DailyAidSlideBuilder:
         grey_rgb = (170, 170, 170)
         idea_number = idea.get('idea_number', 1)
         
-        draw.rectangle([(0, 0), (self.width, 6)], fill=accent_rgb)
-        draw.rectangle([(0, self.height - 6), (self.width, self.height)], fill=accent_rgb)
-        
         left_margin = 60
         max_text_width = self.width - (left_margin * 2)
         
-        header_text = f"Daily Ai'ds #{idea_number}"
+        header_text = f"Daily Dose of Ai'ds #{idea_number}"
         header_font = ImageFont.truetype('assets/fonts/Array-Wide.ttf', 95)
         bbox = draw.textbbox((0, 0), header_text, font=header_font)
         header_x = (self.width - (bbox[2] - bbox[0])) // 2
@@ -308,17 +305,17 @@ class DailyAidSlideBuilder:
             draw.text((left_margin, earnings_y), line, font=method_font, fill=grey_rgb)
             earnings_y += method_line_h
         
-        tagline_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 30)
+        tagline_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 42)
         tagline = "The hardest part is getting started..."
         tagline2 = "So why give it a shot?"
         
         bbox = draw.textbbox((0, 0), tagline, font=tagline_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 150), tagline, font=tagline_font, fill=accent_rgb)
+        draw.text((x, self.height - 170), tagline, font=tagline_font, fill=accent_rgb)
         
         bbox = draw.textbbox((0, 0), tagline2, font=tagline_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 110), tagline2, font=tagline_font, fill=accent_rgb)
+        draw.text((x, self.height - 120), tagline2, font=tagline_font, fill=accent_rgb)
         
         watermark = self.branding.get('watermark', '@techiavelli')
         watermark_font = ImageFont.truetype('assets/fonts/Zina-Regular.ttf', 32)
