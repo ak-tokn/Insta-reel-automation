@@ -331,17 +331,17 @@ class DailyAidSlideBuilder:
         
         bbox = draw.textbbox((0, 0), tagline, font=tagline_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 170), tagline, font=tagline_font, fill=accent_rgb)
+        draw.text((x, self.height - 210), tagline, font=tagline_font, fill=accent_rgb)
         
         bbox = draw.textbbox((0, 0), tagline2, font=tagline_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 120), tagline2, font=tagline_font, fill=accent_rgb)
+        draw.text((x, self.height - 160), tagline2, font=tagline_font, fill=accent_rgb)
         
         watermark = self.branding.get('watermark', '@techiavelli')
         watermark_font = ImageFont.truetype('assets/fonts/Zina-Regular.ttf', 32)
         bbox = draw.textbbox((0, 0), watermark, font=watermark_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 60), watermark, font=watermark_font, fill=(120, 120, 120))
+        draw.text((x, self.height - 50), watermark, font=watermark_font, fill=(120, 120, 120))
         
         output_path = self.output_dir / f"slide_00_title.png"
         img.save(output_path, 'PNG', quality=95)
@@ -468,7 +468,7 @@ class DailyAidSlideBuilder:
             tools_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 32)
             tools_text = "Tools: " + ", ".join(tools[:5])
             tools_lines = self._wrap_text(tools_text, tools_font, max_text_width)
-            y_tools = self.height - 160
+            y_tools = self.height - 200
             for line in tools_lines:
                 bbox = draw.textbbox((0, 0), line, font=tools_font)
                 x = (self.width - (bbox[2] - bbox[0])) // 2
@@ -479,7 +479,7 @@ class DailyAidSlideBuilder:
         watermark_font = ImageFont.truetype('assets/fonts/Zina-Regular.ttf', 32)
         bbox = draw.textbbox((0, 0), watermark, font=watermark_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 60), watermark, font=watermark_font, fill=(120, 120, 120))
+        draw.text((x, self.height - 50), watermark, font=watermark_font, fill=(120, 120, 120))
         
         output_path = self.output_dir / "slide_99_cta.png"
         img.save(output_path, 'PNG', quality=95)
