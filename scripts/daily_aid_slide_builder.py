@@ -330,9 +330,9 @@ class DailyAidSlideBuilder:
             y_offset += 55
         
         watermark = self.branding.get('watermark', '@techiavelli')
-        bbox = draw.textbbox((0, 0), watermark, font=self.font_small)
+        bbox = draw.textbbox((0, 0), watermark, font=self.font_stardom_medium)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 70), watermark, font=self.font_small, fill=(100, 100, 100))
+        draw.text((x, self.height - 70), watermark, font=self.font_stardom_medium, fill=(120, 120, 120))
         
         output_path = self.output_dir / f"slide_{step_index + 1:02d}_step.png"
         img.save(output_path, 'PNG', quality=95)
@@ -340,57 +340,62 @@ class DailyAidSlideBuilder:
         return output_path
     
     def build_cta_slide(self, idea: Dict) -> Path:
-        """Build the call-to-action slide (final carousel image)."""
-        img = self._create_base_image()
-        img = self._add_gradient_overlay(img)
+        """Build the call-to-action slide (final carousel image) - matches title slide styling."""
+        img = self._create_title_background()
         draw = ImageDraw.Draw(img)
         
-        self._add_accent_elements(draw, 'cta')
-        
-        secondary_rgb = self._hex_to_rgb(self.secondary_color)
         accent_rgb = self._hex_to_rgb(self.accent_color)
+        green_rgb = (0, 200, 100)
         
-        ready_text = "READY TO START?"
-        bbox = draw.textbbox((0, 0), ready_text, font=self.font_title_large)
+        draw.rectangle([(0, 0), (self.width, 6)], fill=accent_rgb)
+        draw.rectangle([(0, self.height - 6), (self.width, self.height)], fill=accent_rgb)
+        
+        ready_text = "Ready to Start?"
+        bbox = draw.textbbox((0, 0), ready_text, font=self.font_display_xl)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        self._draw_text_with_shadow(draw, (x, 250), ready_text, self.font_title_large, (255, 255, 255), shadow_offset=4)
+        self._draw_text_with_shadow(draw, (x, 180), ready_text, self.font_display_xl, accent_rgb, shadow_offset=5)
         
-        cta_text = self.branding.get('cta_text', 'Copy the caption into Claude/ChatGPT to get started')
-        cta_lines = self._wrap_text(cta_text, self.font_step_title, self.width - 100)
+        cta_label = "Just copy the caption below into"
+        bbox = draw.textbbox((0, 0), cta_label, font=self.font_montserrat_400)
+        x = (self.width - (bbox[2] - bbox[0])) // 2
+        draw.text((x, 380), cta_label, font=self.font_montserrat_400, fill=(160, 160, 160))
         
-        y_offset = 450
-        for line in cta_lines:
-            bbox = draw.textbbox((0, 0), line, font=self.font_step_title)
-            x = (self.width - (bbox[2] - bbox[0])) // 2
-            draw.text((x, y_offset), line, font=self.font_step_title, fill=accent_rgb)
-            y_offset += 70
+        cta_main = "CHATGPT OR CLAUDE"
+        bbox = draw.textbbox((0, 0), cta_main, font=self.font_stardom_large)
+        x = (self.width - (bbox[2] - bbox[0])) // 2
+        self._draw_text_with_shadow(draw, (x, 440), cta_main, self.font_stardom_large, (255, 255, 255), shadow_offset=4)
         
-        arrow_y = y_offset + 80
+        cta_label2 = "and let AI guide you through it"
+        bbox = draw.textbbox((0, 0), cta_label2, font=self.font_montserrat_400)
+        x = (self.width - (bbox[2] - bbox[0])) // 2
+        draw.text((x, 560), cta_label2, font=self.font_montserrat_400, fill=(160, 160, 160))
+        
         arrow_text = "↓"
-        bbox = draw.textbbox((0, 0), arrow_text, font=self.font_step_number)
+        arrow_font = ImageFont.truetype('assets/fonts/Montserrat-Light.ttf', 120)
+        bbox = draw.textbbox((0, 0), arrow_text, font=arrow_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        self._draw_text_with_shadow(draw, (x, arrow_y), arrow_text, self.font_step_number, secondary_rgb, shadow_offset=4)
+        draw.text((x, 680), arrow_text, font=arrow_font, fill=green_rgb)
         
         caption_hint = "THE PROMPT IS IN THE CAPTION"
-        bbox = draw.textbbox((0, 0), caption_hint, font=self.font_subtitle)
+        bbox = draw.textbbox((0, 0), caption_hint, font=self.font_montserrat_400_medium)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, arrow_y + 180), caption_hint, font=self.font_subtitle, fill=(200, 200, 200))
+        draw.text((x, 850), caption_hint, font=self.font_montserrat_400_medium, fill=(180, 180, 180))
         
         tools = idea.get('tools_mentioned', [])
         if tools:
             tools_text = "Tools: " + ", ".join(tools[:5])
-            tools_lines = self._wrap_text(tools_text, self.font_body, self.width - 160)
+            tools_lines = self._wrap_text(tools_text, self.font_montserrat_400_medium, self.width - 160)
             y_tools = self.height - 180
             for line in tools_lines:
-                bbox = draw.textbbox((0, 0), line, font=self.font_body)
+                bbox = draw.textbbox((0, 0), line, font=self.font_montserrat_400_medium)
                 x = (self.width - (bbox[2] - bbox[0])) // 2
-                draw.text((x, y_tools), line, font=self.font_body, fill=(120, 120, 120))
+                draw.text((x, y_tools), line, font=self.font_montserrat_400_medium, fill=(120, 120, 120))
                 y_tools += 45
         
         watermark = self.branding.get('watermark', '@techiavelli')
-        bbox = draw.textbbox((0, 0), watermark, font=self.font_small)
+        bbox = draw.textbbox((0, 0), watermark, font=self.font_stardom_medium)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 70), watermark, font=self.font_small, fill=(100, 100, 100))
+        draw.text((x, self.height - 70), watermark, font=self.font_stardom_medium, fill=(120, 120, 120))
         
         output_path = self.output_dir / "slide_99_cta.png"
         img.save(output_path, 'PNG', quality=95)
