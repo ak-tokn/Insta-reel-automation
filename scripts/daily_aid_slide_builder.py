@@ -42,6 +42,8 @@ class DailyAidSlideBuilder:
         body_font = 'assets/fonts/Chillax-Variable.ttf'
         display_font = 'assets/fonts/Comico-Regular.ttf'
         light_font = 'assets/fonts/Montserrat-Light.ttf'
+        stardom_font = 'assets/fonts/Stardom-Regular.ttf'
+        montserrat_font = 'assets/fonts/Montserrat-Light.ttf'
         
         try:
             self.font_title = ImageFont.truetype(title_font, 92)
@@ -55,8 +57,14 @@ class DailyAidSlideBuilder:
             self.font_small = ImageFont.truetype(body_font, 32)
             self.font_cta = ImageFont.truetype(title_font, 68)
             self.font_display_large = ImageFont.truetype(display_font, 85)
+            self.font_display_xl = ImageFont.truetype(display_font, 110)
             self.font_light = ImageFont.truetype(light_font, 34)
             self.font_light_small = ImageFont.truetype(light_font, 28)
+            self.font_stardom_large = ImageFont.truetype(stardom_font, 90)
+            self.font_stardom_medium = ImageFont.truetype(stardom_font, 32)
+            self.font_montserrat_400 = ImageFont.truetype(montserrat_font, 36)
+            self.font_montserrat_400_medium = ImageFont.truetype(montserrat_font, 32)
+            self.font_montserrat_500 = ImageFont.truetype(montserrat_font, 42)
         except Exception as e:
             logger.warning(f"Failed to load custom fonts: {e}, using default")
             self.font_title = ImageFont.load_default()
@@ -70,8 +78,14 @@ class DailyAidSlideBuilder:
             self.font_small = ImageFont.load_default()
             self.font_cta = ImageFont.load_default()
             self.font_display_large = ImageFont.load_default()
+            self.font_display_xl = ImageFont.load_default()
             self.font_light = ImageFont.load_default()
             self.font_light_small = ImageFont.load_default()
+            self.font_stardom_large = ImageFont.load_default()
+            self.font_stardom_medium = ImageFont.load_default()
+            self.font_montserrat_400 = ImageFont.load_default()
+            self.font_montserrat_400_medium = ImageFont.load_default()
+            self.font_montserrat_500 = ImageFont.load_default()
     
     def _hex_to_rgb(self, hex_color: str) -> Tuple[int, int, int]:
         """Convert hex color to RGB tuple."""
@@ -116,7 +130,7 @@ class DailyAidSlideBuilder:
         return None
     
     def _create_title_background(self) -> Image.Image:
-        """Create a trendy title slide background with dimmed image."""
+        """Create a trendy title slide background with lightly dimmed image."""
         bg_img = self._get_random_background_image()
         
         if bg_img and bg_img.exists():
@@ -124,11 +138,11 @@ class DailyAidSlideBuilder:
                 img = Image.open(bg_img).convert('RGB')
                 img = img.resize((self.width, self.height), Image.Resampling.LANCZOS)
                 enhancer = ImageEnhance.Brightness(img)
-                img = enhancer.enhance(0.25)
+                img = enhancer.enhance(0.45)
                 enhancer = ImageEnhance.Contrast(img)
-                img = enhancer.enhance(0.8)
-                img = img.filter(ImageFilter.GaussianBlur(radius=2))
-                overlay = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 180))
+                img = enhancer.enhance(0.85)
+                img = img.filter(ImageFilter.GaussianBlur(radius=1.5))
+                overlay = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 120))
                 img = img.convert('RGBA')
                 img = Image.alpha_composite(img, overlay).convert('RGB')
                 
@@ -195,85 +209,83 @@ class DailyAidSlideBuilder:
         draw = ImageDraw.Draw(img)
         
         accent_rgb = self._hex_to_rgb(self.accent_color)
+        green_rgb = (0, 200, 100)
         idea_number = idea.get('idea_number', 1)
         
         draw.rectangle([(0, 0), (self.width, 6)], fill=accent_rgb)
         draw.rectangle([(0, self.height - 6), (self.width, self.height)], fill=accent_rgb)
         
         header_text = f"Daily Ai'Ds #{idea_number}"
-        bbox = draw.textbbox((0, 0), header_text, font=self.font_display_large)
+        bbox = draw.textbbox((0, 0), header_text, font=self.font_display_xl)
         header_width = bbox[2] - bbox[0]
         header_x = (self.width - header_width) // 2
-        self._draw_text_with_shadow(draw, (header_x, 45), header_text, self.font_display_large, accent_rgb, shadow_offset=4)
+        self._draw_text_with_shadow(draw, (header_x, 40), header_text, self.font_display_xl, accent_rgb, shadow_offset=5)
         
         title = idea.get('title', 'AI Money Idea')
         income_method = idea.get('income_method', 'automating tasks')
         
-        focal_start_y = 320
+        focal_start_y = 340
         
-        build_text = "Build a"
-        bbox = draw.textbbox((0, 0), build_text, font=self.font_light_small)
+        label_text = "Easy Prompting Idea:"
+        bbox = draw.textbbox((0, 0), label_text, font=self.font_montserrat_400)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, focal_start_y), build_text, font=self.font_light_small, fill=(180, 180, 180))
+        draw.text((x, focal_start_y), label_text, font=self.font_montserrat_400, fill=(160, 160, 160))
         
-        title_lines = self._wrap_text(title.upper(), self.font_title_large, self.width - 80)
-        y_offset = focal_start_y + 45
+        title_lines = self._wrap_text(title.upper(), self.font_stardom_large, self.width - 100)
+        y_offset = focal_start_y + 60
         for line in title_lines:
-            bbox = draw.textbbox((0, 0), line, font=self.font_title_large)
+            bbox = draw.textbbox((0, 0), line, font=self.font_stardom_large)
             line_width = bbox[2] - bbox[0]
             x = (self.width - line_width) // 2
-            self._draw_text_with_shadow(draw, (x, y_offset), line, self.font_title_large, (255, 255, 255), shadow_offset=5)
-            y_offset += 115
+            self._draw_text_with_shadow(draw, (x, y_offset), line, self.font_stardom_large, (255, 255, 255), shadow_offset=4)
+            y_offset += 100
         
-        y_offset += 50
+        y_offset += 60
         
         money_text = "make money by"
-        bbox = draw.textbbox((0, 0), money_text, font=self.font_light_small)
+        bbox = draw.textbbox((0, 0), money_text, font=self.font_montserrat_400_medium)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, y_offset), money_text, font=self.font_light_small, fill=(160, 160, 160))
-        y_offset += 45
+        draw.text((x, y_offset), money_text, font=self.font_montserrat_400_medium, fill=(150, 150, 150))
+        y_offset += 50
         
-        method_lines = self._wrap_text(income_method.lower(), self.font_body_large, self.width - 120)
+        method_lines = self._wrap_text(income_method.lower(), self.font_montserrat_500, self.width - 100)
         for line in method_lines:
-            bbox = draw.textbbox((0, 0), line, font=self.font_body_large)
+            bbox = draw.textbbox((0, 0), line, font=self.font_montserrat_500)
             line_width = bbox[2] - bbox[0]
             x = (self.width - line_width) // 2
-            draw.text((x, y_offset), line, font=self.font_body_large, fill=accent_rgb)
-            y_offset += 55
+            draw.text((x, y_offset), line, font=self.font_montserrat_500, fill=accent_rgb)
+            y_offset += 50
         
         monthly_income = idea.get('monthly_income', idea.get('estimated_earnings', '$500-2000/mo'))
         if monthly_income:
-            earnings_text = f"set up in a few hours and sit back while you"
-            earnings_text2 = f"can make up to {monthly_income}"
+            earnings_text = "set up in hours and make up to"
             
-            y_earnings = self.height - 340
-            bbox = draw.textbbox((0, 0), earnings_text, font=self.font_light_small)
+            y_earnings = self.height - 320
+            bbox = draw.textbbox((0, 0), earnings_text, font=self.font_montserrat_400_medium)
             x = (self.width - (bbox[2] - bbox[0])) // 2
-            draw.text((x, y_earnings), earnings_text, font=self.font_light_small, fill=(180, 180, 180))
+            draw.text((x, y_earnings), earnings_text, font=self.font_montserrat_400_medium, fill=(170, 170, 170))
             
-            bbox = draw.textbbox((0, 0), earnings_text2, font=self.font_light_small)
+            bbox = draw.textbbox((0, 0), monthly_income, font=self.font_montserrat_500)
             x = (self.width - (bbox[2] - bbox[0])) // 2
-            draw.text((x, y_earnings + 38), earnings_text2, font=self.font_light_small, fill=(180, 180, 180))
+            draw.text((x, y_earnings + 42), monthly_income, font=self.font_montserrat_500, fill=green_rgb)
         
         tagline = "The hardest part is getting started.."
         tagline2 = "I just solved that - so give this a shot?"
         
-        bbox = draw.textbbox((0, 0), tagline, font=self.font_display_large)
-        tagline_scale = 0.42
-        tagline_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', int(85 * tagline_scale))
+        tagline_font = ImageFont.truetype('assets/fonts/Comico-Regular.ttf', 32)
         
         bbox = draw.textbbox((0, 0), tagline, font=tagline_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 200), tagline, font=tagline_font, fill=accent_rgb)
+        draw.text((x, self.height - 190), tagline, font=tagline_font, fill=accent_rgb)
         
         bbox = draw.textbbox((0, 0), tagline2, font=tagline_font)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 155), tagline2, font=tagline_font, fill=accent_rgb)
+        draw.text((x, self.height - 150), tagline2, font=tagline_font, fill=accent_rgb)
         
         watermark = self.branding.get('watermark', '@techiavelli')
-        bbox = draw.textbbox((0, 0), watermark, font=self.font_small)
+        bbox = draw.textbbox((0, 0), watermark, font=self.font_stardom_medium)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 70), watermark, font=self.font_small, fill=(100, 100, 100))
+        draw.text((x, self.height - 70), watermark, font=self.font_stardom_medium, fill=(120, 120, 120))
         
         output_path = self.output_dir / f"slide_00_title.png"
         img.save(output_path, 'PNG', quality=95)
