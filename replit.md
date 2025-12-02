@@ -109,7 +109,7 @@ The flash reel format features:
     "width": 1080,
     "height": 1350,
     "background_color": "#0A0A0A",
-    "accent_color": "#00FF88",
+    "accent_color": "#FF3B3B",
     "min_steps": 5,
     "max_steps": 10
   },
@@ -117,6 +117,11 @@ The flash reel format features:
     "header_text": "DAILY AI'DS",
     "watermark": "@techiavelli",
     "cta_text": "Copy the caption into Claude/ChatGPT to get started"
+  },
+  "fonts": {
+    "title": "Nippo-Bold.ttf",
+    "numbers": "Orbitron-Bold.ttf",
+    "body": "Chillax-Variable.ttf"
   }
 }
 ```

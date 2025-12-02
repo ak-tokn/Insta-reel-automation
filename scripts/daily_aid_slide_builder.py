@@ -35,22 +35,22 @@ class DailyAidSlideBuilder:
         self._load_fonts()
     
     def _load_fonts(self):
-        """Load fonts for rendering with improved visual hierarchy."""
-        display_font = 'assets/fonts/Panchang-Medium.ttf'
-        accent_font = 'assets/fonts/Panchang-Regular.ttf'
-        body_font = 'assets/fonts/Montserrat-Variable.ttf'
+        """Load fonts for rendering with trendy visual hierarchy."""
+        title_font = 'assets/fonts/Nippo-Bold.ttf'
+        number_font = 'assets/fonts/Orbitron-Bold.ttf'
+        body_font = 'assets/fonts/Chillax-Variable.ttf'
         
         try:
-            self.font_title = ImageFont.truetype(display_font, 88)
-            self.font_title_large = ImageFont.truetype(display_font, 100)
-            self.font_subtitle = ImageFont.truetype(accent_font, 48)
+            self.font_title = ImageFont.truetype(title_font, 92)
+            self.font_title_large = ImageFont.truetype(title_font, 105)
+            self.font_subtitle = ImageFont.truetype(title_font, 50)
             self.font_body = ImageFont.truetype(body_font, 38)
-            self.font_body_large = ImageFont.truetype(body_font, 42)
-            self.font_step_number = ImageFont.truetype(display_font, 180)
-            self.font_step_title = ImageFont.truetype(display_font, 52)
-            self.font_header = ImageFont.truetype(accent_font, 36)
-            self.font_small = ImageFont.truetype(body_font, 30)
-            self.font_cta = ImageFont.truetype(display_font, 64)
+            self.font_body_large = ImageFont.truetype(body_font, 44)
+            self.font_step_number = ImageFont.truetype(number_font, 200)
+            self.font_step_title = ImageFont.truetype(title_font, 56)
+            self.font_header = ImageFont.truetype(title_font, 40)
+            self.font_small = ImageFont.truetype(body_font, 32)
+            self.font_cta = ImageFont.truetype(title_font, 68)
         except Exception as e:
             logger.warning(f"Failed to load custom fonts: {e}, using default")
             self.font_title = ImageFont.load_default()
@@ -138,7 +138,7 @@ class DailyAidSlideBuilder:
         draw.text(pos, text, font=font, fill=fill)
     
     def build_title_slide(self, idea: Dict) -> Path:
-        """Build the title slide (first carousel image)."""
+        """Build the title slide (first carousel image) - trendy and bold."""
         img = self._create_base_image()
         img = self._add_gradient_overlay(img)
         draw = ImageDraw.Draw(img)
@@ -149,33 +149,36 @@ class DailyAidSlideBuilder:
         idea_number = idea.get('idea_number', 1)
         
         accent_rgb = self._hex_to_rgb(self.accent_color)
+        
         header_full = f"{header_text} #{idea_number}"
         bbox = draw.textbbox((0, 0), header_full, font=self.font_subtitle)
         header_width = bbox[2] - bbox[0]
         header_x = (self.width - header_width) // 2
-        draw.text((header_x, 60), header_full, font=self.font_subtitle, fill=accent_rgb)
+        self._draw_text_with_shadow(draw, (header_x, 50), header_full, self.font_subtitle, accent_rgb, shadow_offset=3)
         
         title = idea.get('title', 'AI Money Idea')
-        title_lines = self._wrap_text(title.upper(), self.font_title_large, self.width - 100)
+        title_lines = self._wrap_text(title.upper(), self.font_title_large, self.width - 80)
         
-        y_offset = 250
+        y_offset = 220
         for line in title_lines:
             bbox = draw.textbbox((0, 0), line, font=self.font_title_large)
             line_width = bbox[2] - bbox[0]
             x = (self.width - line_width) // 2
-            self._draw_text_with_shadow(draw, (x, y_offset), line, self.font_title_large, (255, 255, 255), shadow_offset=4)
-            y_offset += 110
+            self._draw_text_with_shadow(draw, (x, y_offset), line, self.font_title_large, accent_rgb, shadow_offset=5)
+            y_offset += 120
+        
+        draw.line([(100, y_offset + 20), (self.width - 100, y_offset + 20)], fill=accent_rgb, width=4)
+        y_offset += 60
         
         summary = idea.get('summary', '')
-        summary_lines = self._wrap_text(summary, self.font_body_large, self.width - 140)
+        summary_lines = self._wrap_text(summary, self.font_body_large, self.width - 120)
         
-        y_offset += 60
         for line in summary_lines:
             bbox = draw.textbbox((0, 0), line, font=self.font_body_large)
             line_width = bbox[2] - bbox[0]
             x = (self.width - line_width) // 2
-            draw.text((x, y_offset), line, font=self.font_body_large, fill=(200, 200, 200))
-            y_offset += 55
+            draw.text((x, y_offset), line, font=self.font_body_large, fill=(230, 230, 230))
+            y_offset += 58
         
         earnings = idea.get('estimated_earnings', '')
         difficulty = idea.get('difficulty', '')
@@ -189,7 +192,7 @@ class DailyAidSlideBuilder:
             if earnings:
                 bbox = draw.textbbox((0, 0), earnings, font=self.font_cta)
                 x = (self.width - (bbox[2] - bbox[0])) // 2
-                self._draw_text_with_shadow(draw, (x, y_offset), earnings, self.font_cta, secondary_rgb, shadow_offset=3)
+                self._draw_text_with_shadow(draw, (x, y_offset), earnings, self.font_cta, (255, 255, 255), shadow_offset=3)
                 y_offset += 85
             
             if difficulty:
@@ -208,7 +211,7 @@ class DailyAidSlideBuilder:
         watermark = self.branding.get('watermark', '@techiavelli')
         bbox = draw.textbbox((0, 0), watermark, font=self.font_small)
         x = (self.width - (bbox[2] - bbox[0])) // 2
-        draw.text((x, self.height - 70), watermark, font=self.font_small, fill=(100, 100, 100))
+        draw.text((x, self.height - 65), watermark, font=self.font_small, fill=(120, 120, 120))
         
         output_path = self.output_dir / f"slide_00_title.png"
         img.save(output_path, 'PNG', quality=95)
