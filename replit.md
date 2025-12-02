@@ -1,9 +1,13 @@
-# StoicAlgo - Automated Instagram Reels Pipeline
+# StoicAlgo - Automated Instagram Content Pipeline
 
 ## Overview
-StoicAlgo is an automated content creation and posting system for Instagram Reels, focused on stoic/philosophical quotes. The system generates video content with text overlays, background music, and posts on a configurable schedule.
+StoicAlgo is an automated content creation and posting system for Instagram, focused on stoic/philosophical quotes (Reels) and AI-powered money-making ideas (Carousel posts). The system generates video and image content with text overlays, background music, and posts on a configurable schedule.
 
 ## Recent Changes
+- **Dec 02, 2025**: Added "Daily Ai'ds" carousel post feature - AI-generated money-making ideas with step-by-step breakdowns
+- **Dec 02, 2025**: Added carousel posting capability to Instagram client
+- **Dec 02, 2025**: Created DailyAidService for OpenAI-powered idea generation
+- **Dec 02, 2025**: Created DailyAidSlideBuilder for rendering carousel images (title, steps, CTA slides)
 - **Nov 30, 2025**: Added Flash Reel format - dramatic voiceover with synchronized word reveals and flashing images
 - **Nov 30, 2025**: Added voiceover service using fal.ai Chatterbox HD TTS with dramatic/sinister voice modes
 - **Nov 30, 2025**: Added reference person video generation using fal.ai Vidu API (every 10th post features the reference person)
@@ -22,7 +26,13 @@ StoicAlgo is an automated content creation and posting system for Instagram Reel
 - `scripts/animated_background.py` - fal.ai Kling API integration for animated video backgrounds
 - `scripts/reference_person_video.py` - fal.ai Vidu API integration for reference person videos
 - `scripts/quote_service.py` - LLM-powered quote generation
-- `scripts/instagram_client.py` - Instagram posting via Graph API
+- `scripts/instagram_client.py` - Instagram posting via Graph API (Reels + Carousels)
+
+### Daily Ai'ds Components (NEW)
+- `scripts/daily_aid_service.py` - OpenAI-powered business idea generation
+- `scripts/daily_aid_slide_builder.py` - Pillow-based carousel image rendering
+- `scripts/daily_aids_orchestrator.py` - Coordinates idea generation, slide building, and posting
+- `logs/daily_aids_count.json` - Tracks the current Daily Ai'ds number
 
 ### Reference Person
 - `assets/reference_person/` - Contains reference images for Vidu API (up to 7 images)
@@ -87,8 +97,40 @@ The flash reel format features:
 - `FAL_API_KEY` - fal.ai API key for Kling and Vidu video generation
 - Instagram API credentials (configured in settings)
 
+### Daily Ai'ds Settings
+```json
+"daily_aids": {
+  "enabled": true,
+  "llm": {
+    "model": "gpt-4o",
+    "temperature": 0.85
+  },
+  "carousel": {
+    "width": 1080,
+    "height": 1350,
+    "background_color": "#0A0A0A",
+    "accent_color": "#00FF88",
+    "min_steps": 5,
+    "max_steps": 10
+  },
+  "branding": {
+    "header_text": "DAILY AI'DS",
+    "watermark": "@techiavelli",
+    "cta_text": "Copy the caption into Claude/ChatGPT to get started"
+  }
+}
+```
+The Daily Ai'ds feature generates:
+- AI-powered money-making ideas using OpenAI GPT-4o
+- Carousel posts with 5-10 step breakdowns
+- Title slide with idea summary and earning potential
+- Individual step slides with actionable instructions
+- CTA slide directing users to copy the caption
+- Full kickoff prompt in the caption for users to paste into ChatGPT/Claude
+
 ## Key Features
 - Automated quote generation with LLM
+- **Daily Ai'ds**: AI-generated business idea carousels with step-by-step guides
 - **Two reel formats**: Standard (Ken Burns) and Flash Reel (voiceover + word reveals)
 - Ken Burns zoom effect on static backgrounds
 - AI-animated video backgrounds (every 5th post)
@@ -98,9 +140,11 @@ The flash reel format features:
 - Background music selection based on mood
 - Watermark positioning below motivation text
 - Scheduled posting (5 times daily)
+- Instagram carousel posting via Graph API
 
 ## User Preferences
 - Animation frequency: every 5th post
 - Video duration: 10 seconds
-- Aspect ratio: 9:16 (vertical/portrait)
-- Resolution: 1080x1920
+- Aspect ratio: 9:16 (vertical/portrait) for Reels
+- Carousel ratio: 4:5 (1080x1350) for Daily Ai'ds
+- Resolution: 1080x1920 for Reels

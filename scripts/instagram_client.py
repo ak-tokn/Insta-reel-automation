@@ -7,7 +7,7 @@ import os
 import time
 import requests
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 from scripts.logger import get_logger
 from scripts.utils import load_settings, get_env_var
 
@@ -360,6 +360,121 @@ class InstagramClient:
         except Exception as e:
             logger.error(f"Insights error: {str(e)}")
             return {}
+    
+    def post_carousel(self, image_paths: List[Path], caption: str) -> Dict:
+        """
+        Post a carousel (multiple images) to Instagram.
+        
+        Instagram API limits carousel to 10 images maximum.
+        
+        Args:
+            image_paths: List of paths to image files (max 10)
+            caption: Caption for the post
+            
+        Returns:
+            Dictionary with post result info
+        """
+        
+        if len(image_paths) > 10:
+            logger.warning(f"Carousel limited to 10 images, got {len(image_paths)}. Truncating.")
+            image_paths = image_paths[:10]
+        
+        if len(image_paths) < 2:
+            raise ValueError("Carousel requires at least 2 images")
+        
+        logger.info(f"Posting carousel with {len(image_paths)} images")
+        
+        self._ensure_valid_token()
+        
+        child_container_ids = []
+        for i, image_path in enumerate(image_paths):
+            logger.info(f"Processing image {i + 1}/{len(image_paths)}: {image_path.name}")
+            
+            image_url = self._upload_image_to_hosting(image_path)
+            if not image_url:
+                raise RuntimeError(f"Failed to upload image: {image_path}")
+            
+            container_id = self._create_carousel_item_container(image_url)
+            if not container_id:
+                raise RuntimeError(f"Failed to create container for image: {image_path}")
+            
+            child_container_ids.append(container_id)
+            logger.info(f"Created child container: {container_id}")
+        
+        logger.info("Creating carousel parent container...")
+        carousel_container_id = self._create_carousel_container(child_container_ids, caption)
+        
+        if not carousel_container_id:
+            raise RuntimeError("Failed to create carousel container")
+        
+        self._wait_for_media_ready(carousel_container_id)
+        
+        post_id = self._publish_media(carousel_container_id)
+        
+        logger.info(f"Carousel published successfully! Post ID: {post_id}")
+        
+        return {
+            'success': True,
+            'post_id': post_id,
+            'container_id': carousel_container_id,
+            'child_containers': child_container_ids,
+            'image_count': len(image_paths)
+        }
+    
+    def _create_carousel_item_container(self, image_url: str) -> Optional[str]:
+        """Create a container for a single carousel item."""
+        
+        endpoint = f"{self.BASE_URL}/{self.user_id}/media"
+        
+        params = {
+            'access_token': self.access_token,
+            'image_url': image_url,
+            'is_carousel_item': 'true'
+        }
+        
+        try:
+            response = requests.post(endpoint, params=params)
+            data = response.json()
+            
+            if 'id' in data:
+                return data['id']
+            else:
+                error_msg = data.get('error', {}).get('message', 'Unknown error')
+                logger.error(f"Carousel item container creation failed: {error_msg}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Carousel item container error: {str(e)}")
+            return None
+    
+    def _create_carousel_container(self, child_ids: List[str], caption: str) -> Optional[str]:
+        """Create the parent carousel container."""
+        
+        endpoint = f"{self.BASE_URL}/{self.user_id}/media"
+        
+        params = {
+            'access_token': self.access_token,
+            'media_type': 'CAROUSEL',
+            'children': ','.join(child_ids),
+            'caption': caption
+        }
+        
+        try:
+            response = requests.post(endpoint, params=params)
+            data = response.json()
+            
+            if 'id' in data:
+                container_id = data['id']
+                logger.info(f"Carousel container created: {container_id}")
+                return container_id
+            else:
+                error_msg = data.get('error', {}).get('message', 'Unknown error')
+                logger.error(f"Carousel container creation failed: {error_msg}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Carousel container error: {str(e)}")
+            return None
     
     def verify_credentials(self) -> bool:
         """Verify that credentials are valid."""
